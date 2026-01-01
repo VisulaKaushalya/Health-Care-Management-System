@@ -1,13 +1,22 @@
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-void main() {
-    //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-    // to see how IntelliJ IDEA suggests fixing it.
-    IO.println(String.format("Hello and welcome!"));
+import model.Patient;
+import util.CSVHandler;
+import java.util.List;
 
-    for (int i = 1; i <= 5; i++) {
-        //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-        // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-        IO.println("i = " + i);
+public class Main {
+    public static void main(String[] args) {
+        // 1. Create our CSV loader
+        CSVHandler loader = new CSVHandler();
+
+        // 2. Try to load the file (Make sure filename matches exactly!)
+        System.out.println("Loading patients...");
+        List<Patient> myPatients = loader.loadPatients("patients.csv");
+
+        // 3. Print the result
+        System.out.println("Found " + myPatients.size() + " patients.");
+
+        // 4. Print the first one just to check
+        if (!myPatients.isEmpty()) {
+            System.out.println("First Patient: " + myPatients.get(0).toString());
+        }
     }
 }
