@@ -1,6 +1,7 @@
 package view;
 
 import model.Patient;
+import model.Clinician;
 import util.CSVHandler;
 import javax.swing.*;
 import java.awt.*;
@@ -36,8 +37,22 @@ public class MainFrame extends JFrame {
 
         //--------------------------doctor tab-------------------------------
 
-        JPanel doctorPanel = new JPanel();
-        doctorPanel.add(new JLabel("Doctor List will go here"));
+        JPanel doctorPanel = new JPanel(new BorderLayout());
+
+        // A. Load data using the NEW method in CSVHandler
+        // (Note: 'loader' was already created for patients, so we can reuse it!)
+        List<Clinician> clinicians = loader.loadClinicians("clinicians.csv");
+
+        // B. Create Model & Table
+        ClinicianTableModel docModel = new ClinicianTableModel(clinicians);
+        JTable docTable = new JTable(docModel);
+
+        // C. Enable scrolling (Essential for 12 columns)
+        docTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
+        // D. Add to ScrollPane and Panel
+        JScrollPane docScroll = new JScrollPane(docTable);
+        doctorPanel.add(docScroll, BorderLayout.CENTER);
 
 
         //----------------------appointment tab----------------------------------
