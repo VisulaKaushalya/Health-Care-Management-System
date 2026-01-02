@@ -1,15 +1,20 @@
 package view;
 
 import model.Appointment;
+import model.Clinician;
+import model.Patient;
+import model.Appointment;
 import javax.swing.table.AbstractTableModel;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AppointmentTableModel extends AbstractTableModel {
 
     private final String[] columnNames = {
             "Appt ID",
-            "Patient ID",
-            "Doctor ID",
+            "Patient Name",
+            "Doctor Name",
             "Facility",
             "Date",
             "Time",
@@ -24,8 +29,24 @@ public class AppointmentTableModel extends AbstractTableModel {
 
     private final List<Appointment> appointmentList;
 
-    public AppointmentTableModel(List<Appointment> appointmentList) {
-        this.appointmentList = appointmentList;
+    // Lookup Maps: Key = ID, Value = Name
+    private final Map<String, String> patientMap = new HashMap<>();
+    private final Map<String, String> clinicianMap = new HashMap<>();
+
+    public AppointmentTableModel(List<Appointment> appointments,
+                                 List<Patient> patients,
+                                 List<Clinician> clinicians) {
+        this.appointmentList = appointments;
+
+        // 1. Build the Patient Lookup Map
+        for (Patient p : patients) {
+            patientMap.put(p.getPatientID(), p.getFirstName() + " " + p.getLastName());
+        }
+
+        // 2. Build the Doctor Lookup Map
+        for (Clinician c : clinicians) {
+            clinicianMap.put(c.getClinicianID(), "Dr. " + c.getLastName());
+        }
     }
 
     @Override
@@ -42,9 +63,11 @@ public class AppointmentTableModel extends AbstractTableModel {
         Appointment a = appointmentList.get(rowIndex);
 
         switch (columnIndex) {
+            //lookups
             case 0: return a.getAppointmentID();
-            case 1: return a.getPatientID();
-            case 2: return a.getClinicianID();
+            case 1: return patientMap.getOrDefault(a.getPatientID(), a.getPatientID());
+            case 2: return clinicianMap.getOrDefault(a.getClinicianID(), a.getClinicianID());
+
             case 3: return a.getFacilityID();
             case 4: return a.getDate();
             case 5: return a.getTime();
@@ -55,7 +78,6 @@ public class AppointmentTableModel extends AbstractTableModel {
             case 10: return a.getNotes();
             case 11: return a.getCreatedDate();
             case 12: return a.getLastModified();
-
 
             default: return null;
         }

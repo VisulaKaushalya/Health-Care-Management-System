@@ -112,6 +112,7 @@ public class CSVHandler {
 
                 // import to appointments
                 if (data.length >= 13) {
+                    System.out.println("Loading ID: " + data[0]);
                     Appointment a = new Appointment(
                             data[0].trim(),  // ID
                             data[1].trim(),  // Patient ID
