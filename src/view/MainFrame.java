@@ -2,6 +2,7 @@ package view;
 
 import model.Patient;
 import model.Clinician;
+import model.Appointment;
 import util.CSVHandler;
 import javax.swing.*;
 import java.awt.*;
@@ -39,25 +40,35 @@ public class MainFrame extends JFrame {
 
         JPanel doctorPanel = new JPanel(new BorderLayout());
 
-        // A. Load data using the NEW method in CSVHandler
-        // (Note: 'loader' was already created for patients, so we can reuse it!)
+        // Load data
         List<Clinician> clinicians = loader.loadClinicians("clinicians.csv");
 
-        // B. Create Model & Table
+        // Create Model & Table
         ClinicianTableModel docModel = new ClinicianTableModel(clinicians);
         JTable docTable = new JTable(docModel);
 
-        // C. Enable scrolling (Essential for 12 columns)
+        //enable horizontal scroll, scrollpane
         docTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-
-        // D. Add to ScrollPane and Panel
         JScrollPane docScroll = new JScrollPane(docTable);
         doctorPanel.add(docScroll, BorderLayout.CENTER);
 
 
         //----------------------appointment tab----------------------------------
-        JPanel appointmentPanel = new JPanel();
-        appointmentPanel.add(new JLabel("Appointment List will go here"));
+        JPanel appointmentPanel = new JPanel(new BorderLayout());
+
+        // Load data
+        List<Appointment> appointments = loader.loadAppointments("appointments.csv");
+
+        // Create Model & Table
+        AppointmentTableModel apptModel = new AppointmentTableModel(appointments);
+        JTable apptTable = new JTable(apptModel);
+
+        //enable horizontal scroll, scrollpane
+        apptTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        JScrollPane apptScroll = new JScrollPane(apptTable);
+        appointmentPanel.add(apptScroll, BorderLayout.CENTER);;
+
+
 
         //panels to tabs
         tabbedPane.addTab("Patient List", patientPanel);

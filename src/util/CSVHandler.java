@@ -2,6 +2,7 @@ package util;
 
 import model.Patient;
 import model.Clinician;
+import model.Appointment;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -96,6 +97,43 @@ public class CSVHandler {
             System.out.println("Error reading clinicians: " + e.getMessage());
         }
         return clinicians;
+    }
+
+    //------------------Appointments------------------------------------------
+
+    public List<Appointment> loadAppointments(String filePath) {
+        List<Appointment> appointments = new ArrayList<>();
+        String line;
+
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            br.readLine(); // Skip header
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split(",");
+
+                // import to appointments
+                if (data.length >= 13) {
+                    Appointment a = new Appointment(
+                            data[0].trim(),  // ID
+                            data[1].trim(),  // Patient ID
+                            data[2].trim(),  // Clinician ID
+                            data[3].trim(),  // Facility
+                            data[4].trim(),  // Date
+                            data[5].trim(),  // Time
+                            data[6].trim(),  // Duration
+                            data[7].trim(),  // Type
+                            data[8].trim(),  // Status
+                            data[9].trim(),  // Reason
+                            data[10].trim(), // Notes
+                            data[11].trim(), // Created
+                            data[12].trim()  // Modified
+                    );
+                    appointments.add(a);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading appointments: " + e.getMessage());
+        }
+        return appointments;
     }
 
 }
