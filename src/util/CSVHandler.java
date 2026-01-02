@@ -23,17 +23,28 @@ public class CSVHandler {
                 String[] data = line.split(",");
 
                 //check for enough data
-                if (data.length >= 5){
+                if (data.length >= 14){
+                    Patient p =new Patient(
                     //extract from columns of csv
-                    String id = data[0].trim();
-                    String first = data[1].trim();
-                    String last = data[2].trim();
-                    String dob = data[3].trim();
-                    String nhs = data[4].trim();
+                            data[0].trim(),  // ID
+                            data[1].trim(),  // First Name
+                            data[2].trim(),  // Last Name
+                            data[3].trim(),  // DOB
+                            data[4].trim(),  // NHS Number
+                            data[5].trim(),  // Gender
+                            data[6].trim(),  // Phone
+                            data[7].trim(),  // Email
+                            data[8].trim(),  // Address
+                            data[9].trim(),  // Postcode
+                            data[10].trim(), // Emergency Name
+                            data[11].trim(), // Emergency Phone
+                            data[12].trim(), // Registration Date
+                            data[13].trim()  // GP Surgery ID
+                    );
+
 
                     //object to add to list
 
-                    Patient p = new Patient(id, first, last, dob, nhs);
                     patients.add(p);
 
                 }
