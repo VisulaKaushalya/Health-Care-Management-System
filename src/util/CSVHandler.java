@@ -5,6 +5,7 @@ import model.Clinician;
 import model.Appointment;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -136,5 +137,35 @@ public class CSVHandler {
         }
         return appointments;
     }
+    // add appointment write to file
+    public void addAppointment(String filePath, Appointment a) {
+        try (FileWriter fw = new FileWriter(filePath, true); // 'true' means append mode (add to end)
+             BufferedWriter bw = new BufferedWriter(fw);
+             PrintWriter out = new PrintWriter(bw)) {
+
+            // Format: ID, PatientID, DoctorID, Facility, Date, Time, Duration, Type, Status, Reason, Notes, Created, Modified
+            String record = String.join(",",
+                    a.getAppointmentID(),
+                    a.getPatientID(),
+                    a.getClinicianID(),
+                    a.getFacilityID(),
+                    a.getDate(),
+                    a.getTime(),
+                    a.getDuration(),
+                    a.getType(),
+                    a.getStatus(),
+                    a.getReason(),
+                    "None", // Default note
+                    "N/A",  // Created
+                    "N/A"   // Modified
+            );
+
+            out.println(record); // Write to file
+
+        } catch (IOException e) {
+            System.out.println("Error saving appointment: " + e.getMessage());
+        }
+    }
+
 
 }
