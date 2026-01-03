@@ -5,10 +5,14 @@ import model.Clinician;
 import model.Patient;
 import util.CSVHandler;
 import javax.swing.*;
+import javax.swing.table.TableRowSorter;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.util.List;
 
 public class MainFrame extends JFrame {
+
 
     public MainFrame() {
         super("Healthcare Management System");
@@ -31,7 +35,11 @@ public class MainFrame extends JFrame {
         PatientTableModel patientModel = new PatientTableModel(patients);
         JTable patientTable = new JTable(patientModel);
         patientTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        patientPanel.add(createSearchPanel(patientTable), BorderLayout.NORTH);
         patientPanel.add(new JScrollPane(patientTable), BorderLayout.CENTER);
+
+
+
 
         // --- TAB 2: DOCTORS ---
         JPanel doctorPanel = new JPanel(new BorderLayout());
@@ -47,6 +55,7 @@ public class MainFrame extends JFrame {
         AppointmentTableModel apptModel = new AppointmentTableModel(appointments, patients, clinicians);
         JTable apptTable = new JTable(apptModel);
         apptTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        appointmentPanel.add(createSearchPanel(apptTable), BorderLayout.NORTH);
         appointmentPanel.add(new JScrollPane(apptTable), BorderLayout.CENTER);
 
         //  Button Panel
@@ -127,5 +136,40 @@ public class MainFrame extends JFrame {
 
         add(tabbedPane);
         setVisible(true);
+    }
+    // search/filter
+    private JPanel createSearchPanel(JTable table) {
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JLabel searchLabel = new JLabel("Search: ");
+        JTextField searchField = new JTextField(20); // 20 columns wide
+
+        searchPanel.add(searchLabel);
+        searchPanel.add(searchField);
+
+        // 1. Set up the Sorter
+        TableRowSorter<javax.swing.table.TableModel> sorter = new TableRowSorter<>(table.getModel());
+        table.setRowSorter(sorter);
+
+        // 2. Add Listener to Filter when typing
+        searchField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) { filter(); }
+            @Override
+            public void removeUpdate(DocumentEvent e) { filter(); }
+            @Override
+            public void changedUpdate(DocumentEvent e) { filter(); }
+
+            private void filter() {
+                String text = searchField.getText();
+                if (text.trim().length() == 0) {
+                    sorter.setRowFilter(null); // Reset
+                } else {
+                    // (?i) means Case-Insensitive (A = a)
+                    sorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+                }
+            }
+        });
+
+        return searchPanel;
     }
 }
