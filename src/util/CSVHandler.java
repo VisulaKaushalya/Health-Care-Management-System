@@ -3,6 +3,7 @@ package util;
 import model.Patient;
 import model.Clinician;
 import model.Appointment;
+import model. Patient;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.*;
@@ -199,6 +200,31 @@ public class CSVHandler {
         } catch (IOException e) {
             System.out.println("Error saving all appointments: " + e.getMessage());
         }
+    }
+
+    // prescription data load
+
+    public List<model.Prescription> loadPrescriptions(String filePath) {
+        List<model.Prescription> list = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            br.readLine(); // Skip header
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split(",");
+                if (data.length >= 14) { // Basic check
+                    model.Prescription p = new model.Prescription(
+                            data[0], data[1], data[2], data[3], data[4],
+                            data[5], data[6], data[7], data[8], data[9],
+                            data[10], data[11], data[12], data[13],
+                            (data.length > 14) ? data[14] : ""
+                    );
+                    list.add(p);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading prescriptions: " + e.getMessage());
+        }
+        return list;
     }
 
 

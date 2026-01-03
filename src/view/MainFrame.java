@@ -4,6 +4,8 @@ import model.Appointment;
 import model.Clinician;
 import model.Patient;
 import util.CSVHandler;
+import model.Prescription;
+import view.PrescriptionTableModel;
 import javax.swing.*;
 import javax.swing.table.TableRowSorter;
 import javax.swing.event.DocumentEvent;
@@ -20,17 +22,18 @@ public class MainFrame extends JFrame {
         setSize(1000, 600);
         setLocationRelativeTo(null);
 
-        // 1. Load ALL Data First (So it is available everywhere)
+        // ---------------- Load ALL Data  ------------------------------------------
         CSVHandler loader = new CSVHandler();
 
         System.out.println("Loading data..."); // Debug print
         List<Patient> patients = loader.loadPatients("patients.csv");
         List<Clinician> clinicians = loader.loadClinicians("clinicians.csv");
         List<Appointment> appointments = loader.loadAppointments("appointments.csv");
+        List<Prescription> prescriptions = loader.loadPrescriptions("prescriptions.csv");
 
         JTabbedPane tabbedPane = new JTabbedPane();
 
-        // --- TAB 1: PATIENTS ---
+        // -------------------------------- PATIENTS ---------------------------------
         JPanel patientPanel = new JPanel(new BorderLayout());
         PatientTableModel patientModel = new PatientTableModel(patients);
         JTable patientTable = new JTable(patientModel);
@@ -41,7 +44,7 @@ public class MainFrame extends JFrame {
 
 
 
-        // --- TAB 2: DOCTORS ---
+        // --------------------------------- DOCTORS ----------------------------------
         JPanel doctorPanel = new JPanel(new BorderLayout());
         ClinicianTableModel docModel = new ClinicianTableModel(clinicians);
         JTable docTable = new JTable(docModel);
@@ -62,7 +65,7 @@ public class MainFrame extends JFrame {
         JPanel buttonPanel = new JPanel();
 
         JButton bookButton = new JButton("Book Appointment");
-        JButton cancelButton = new JButton("Cancel Appointment"); // <--- New Button
+        JButton cancelButton = new JButton("Cancel Appointment");
 
         // Styling
         bookButton.setFont(new Font("Arial", Font.BOLD, 14));
@@ -70,7 +73,7 @@ public class MainFrame extends JFrame {
         cancelButton.setForeground(Color.RED);
 
         buttonPanel.add(bookButton);
-        buttonPanel.add(cancelButton); // Add both to the panel
+        buttonPanel.add(cancelButton);
 
         appointmentPanel.add(buttonPanel, BorderLayout.SOUTH);
 
@@ -127,16 +130,36 @@ public class MainFrame extends JFrame {
 
 
 
+        //------------------------------ PRESCRIPTIONS ---------------------------------------
+        JPanel prescriptionPanel = new JPanel(new BorderLayout());
+        PrescriptionTableModel rxModel = new PrescriptionTableModel(prescriptions, patients, clinicians);
+        JTable rxTable = new JTable(rxModel);
+        rxTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
+        // Search Bar
+        prescriptionPanel.add(createSearchPanel(rxTable), BorderLayout.NORTH);
+        prescriptionPanel.add(new JScrollPane(rxTable), BorderLayout.CENTER);
+
+
+
 
 
         // Add Tabs
         tabbedPane.addTab("Patients", patientPanel);
         tabbedPane.addTab("Doctors", doctorPanel);
         tabbedPane.addTab("Appointments", appointmentPanel);
+        tabbedPane.addTab("Prescriptions", prescriptionPanel);
 
         add(tabbedPane);
         setVisible(true);
+
+
+
     }
+
+
+
+
     // search/filter
     private JPanel createSearchPanel(JTable table) {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
