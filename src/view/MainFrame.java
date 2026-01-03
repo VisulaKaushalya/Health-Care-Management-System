@@ -34,13 +34,132 @@ public class MainFrame extends JFrame {
         JTabbedPane tabbedPane = new JTabbedPane();
 
         // -------------------------------- PATIENTS ---------------------------------
+
         JPanel patientPanel = new JPanel(new BorderLayout());
         PatientTableModel patientModel = new PatientTableModel(patients);
         JTable patientTable = new JTable(patientModel);
         patientTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-        patientPanel.add(createSearchPanel(patientTable), BorderLayout.NORTH);
+        JPanel patientTopPanel = new JPanel(new BorderLayout());
+        patientTopPanel.add(createSearchPanel(patientTable), BorderLayout.NORTH);
+
+        //  Add Buttons
+        JPanel patientButtonPanel = new JPanel();
+        JButton btnAddPatient = new JButton("Add Patient");
+        JButton btnEditPatient = new JButton("Edit");
+        JButton btnDelPatient = new JButton("Delete");
+
+        patientButtonPanel.add(btnAddPatient);
+        patientButtonPanel.add(btnEditPatient);
+        patientButtonPanel.add(btnDelPatient);
+
+        patientTopPanel.add(patientButtonPanel, BorderLayout.SOUTH);
+
+        // Add the Top Panel
+        patientPanel.add(patientTopPanel, BorderLayout.NORTH);
         patientPanel.add(new JScrollPane(patientTable), BorderLayout.CENTER);
 
+        // --- PATIENT ACTIONS ---
+
+        // PATIENT
+        btnAddPatient.addActionListener(e -> {
+            PatientDialog dialog = new PatientDialog(this, null);
+            dialog.setVisible(true);
+
+            if (dialog.isSubmitted()) {
+                String newID = "P" + (patients.size() + 1001); // Generate ID
+                String regDate = java.time.LocalDate.now().toString(); // Today's date
+
+                Patient p = new Patient(
+                        newID,
+                        dialog.getFirstName(),
+                        dialog.getLastName(),
+                        dialog.getDob(),
+                        dialog.getNhsNumber(),  // <--- Now getting real input
+                        dialog.getGender(),
+                        dialog.getPhone(),
+                        dialog.getEmail(),      // <--- Real input
+                        dialog.getAddress(),    // <--- Real input
+                        dialog.getPostcode(),   // <--- Real input
+                        dialog.getEmgName(),    // <--- Real input
+                        dialog.getEmgPhone(),   // <--- Real input
+                        regDate,                // Auto-set today
+                        dialog.getSurgeryID()   // <--- Real input
+                );
+
+                patients.add(p);
+                patientModel.fireTableDataChanged();
+                loader.savePatients("patients.csv", patients);
+            }
+        });
+
+        // 2. EDIT PATIENT (Full Data)
+        btnEditPatient.addActionListener(e -> {
+            int row = patientTable.getSelectedRow();
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Select a patient to edit.");
+            } else {
+                int modelRow = patientTable.convertRowIndexToModel(row);
+                Patient p = patients.get(modelRow);
+
+                PatientDialog dialog = new PatientDialog(this, p);
+                dialog.setVisible(true);
+
+                if (dialog.isSubmitted()) {
+                    Patient updated = new Patient(
+                            p.getPatientID(),       // Keep ID
+                            dialog.getFirstName(),  // Updated
+                            dialog.getLastName(),   // Updated
+                            dialog.getDob(),        // Updated
+                            dialog.getNhsNumber(),  // Updated
+                            dialog.getGender(),     // Updated
+                            dialog.getPhone(),      // Updated
+                            dialog.getEmail(),      // Updated
+                            dialog.getAddress(),    // Updated
+                            dialog.getPostcode(),   // Updated
+                            dialog.getEmgName(),    // Updated
+                            dialog.getEmgPhone(),   // Updated
+                            p.getRegistrationDate(),// Keep original Reg Date
+                            dialog.getSurgeryID()   // Updated
+                    );
+
+                    patients.set(modelRow, updated);
+                    patientModel.fireTableDataChanged();
+                    loader.savePatients("patients.csv", patients);
+                }
+            }
+        });
+        // 3. DELETE PATIENT
+        btnDelPatient.addActionListener(e -> {
+            int row = patientTable.getSelectedRow();
+
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Select a patient to delete.");
+            } else {
+                int confirm = JOptionPane.showConfirmDialog(this,
+                        "Delete this patient?", "Confirm", JOptionPane.YES_NO_OPTION);
+
+                if (confirm == JOptionPane.YES_OPTION) {
+                    try {
+                        //  Convert View Row -> Model Row
+                        int modelRow = patientTable.convertRowIndexToModel(row);
+
+                        // Remove and update
+                        patients.remove(modelRow);
+                        patientModel.fireTableDataChanged();
+
+                        // Save to File
+                        System.out.println("Saving delete to file...");
+                        loader.savePatients("patients.csv", patients);
+
+                        JOptionPane.showMessageDialog(this, "Patient Deleted Successfully.");
+
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        JOptionPane.showMessageDialog(this, "Error deleting: " + ex.getMessage());
+                    }
+                }
+            }
+        });
 
 
 

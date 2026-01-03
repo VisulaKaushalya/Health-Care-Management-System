@@ -22,15 +22,15 @@ public class CSVHandler {
         String line;
 
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))){
-            //skip header
             br.readLine();
 
             while ((line = br.readLine()) !=null){
-                //commas for split
-                String[] data = line.split(",");
+                //commas for split and ignore , in address field
+                String[] data = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
 
                 //check for enough data
                 if (data.length >= 14){
+                    String cleanAddress = data[8].replace("\"", "");
                     Patient p =new Patient(
                     //extract from columns of csv
                             data[0].trim(),  // ID
@@ -41,7 +41,7 @@ public class CSVHandler {
                             data[5].trim(),  // Gender
                             data[6].trim(),  // Phone
                             data[7].trim(),  // Email
-                            data[8].trim(),  // Address
+                            cleanAddress,  // Address
                             data[9].trim(),  // Postcode
                             data[10].trim(), // Emergency Name
                             data[11].trim(), // Emergency Phone
@@ -62,6 +62,38 @@ public class CSVHandler {
             System.out.println("Error reading File: " + e.getMessage());
         }
         return patients;
+    }
+    //  SAVE PATIENTS
+    public void savePatients(String filePath, List<model.Patient> patients) {
+        try (PrintWriter out = new PrintWriter(new FileWriter(filePath))) {
+            // Write Header
+            out.println("patient_id,first_name,last_name,date_of_birth,nhs_number,gender,phone_number,email,address,postcode,emergency_contact_name,emergency_contact_phone,registration_date,gp_surgery_id");
+
+            for (model.Patient p : patients) {
+
+                String safeAddress = "\"" + p.getAddress() + "\"";
+
+                String record = String.join(",",
+                        p.getPatientID(),
+                        p.getFirstName(),
+                        p.getLastName(),
+                        p.getDateOfBirth(),
+                        p.getNhsNumber(),
+                        p.getGender(),
+                        p.getPhoneNumber(),
+                        p.getEmail(),
+                        safeAddress,
+                        p.getPostcode(),
+                        p.getEmergencyName(),
+                        p.getEmergencyPhone(),
+                        p.getRegistrationDate(),
+                        p.getGpSurgeryID()
+                );
+                out.println(record);
+            }
+        } catch (IOException e) {
+            System.out.println("Error saving patients: " + e.getMessage());
+        }
     }
 
 
