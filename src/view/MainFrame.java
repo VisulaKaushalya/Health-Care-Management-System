@@ -40,69 +40,83 @@ public class MainFrame extends JFrame {
         docTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         doctorPanel.add(new JScrollPane(docTable), BorderLayout.CENTER);
 
-        // --- TAB 3: APPOINTMENTS ---
+        //-------------------------APPOINTMENTS -----------------------------------
         JPanel appointmentPanel = new JPanel(new BorderLayout());
 
-        // Pass ALL lists to the new model
+        //  Setup Model & Table
         AppointmentTableModel apptModel = new AppointmentTableModel(appointments, patients, clinicians);
-
         JTable apptTable = new JTable(apptModel);
         apptTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         appointmentPanel.add(new JScrollPane(apptTable), BorderLayout.CENTER);
 
-        // NEW: Add the Button Panel at the bottom
-        JPanel buttonPanel = new JPanel(); // Default FlowLayout (Centers the button)
-        JButton bookButton = new JButton("Book Appointment");
+        //  Button Panel
+        JPanel buttonPanel = new JPanel();
 
-        // Style tip: Make it look distinct
+        JButton bookButton = new JButton("Book Appointment");
+        JButton cancelButton = new JButton("Cancel Appointment"); // <--- New Button
+
+        // Styling
         bookButton.setFont(new Font("Arial", Font.BOLD, 14));
+        cancelButton.setFont(new Font("Arial", Font.BOLD, 14));
+        cancelButton.setForeground(Color.RED);
 
         buttonPanel.add(bookButton);
+        buttonPanel.add(cancelButton); // Add both to the panel
+
         appointmentPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        // Button Action
+        // Book Appointment
         bookButton.addActionListener(e -> {
             AddAppointmentDialog dialog = new AddAppointmentDialog(this, patients, clinicians);
             dialog.setVisible(true);
 
             if (dialog.isSubmitted()) {
-                // Extract IDs
-
                 String rawPatient = dialog.getSelectedPatient();
                 String patientID = rawPatient.split(" - ")[0];
-
                 String rawDoctor = dialog.getSelectedDoctor();
                 String doctorID = rawDoctor.split(" - ")[0];
+                String newID = "A" + (appointments.size() + 100);
 
-                // Generate a new Appointment ID
-                String newID = "A" + (appointments.size() + 100); // e.g., A105
-
-                // Object
                 Appointment newAppt = new Appointment(
-                        newID,
-                        patientID,
-                        doctorID,
-                        "General-Room", // Default facility
-                        dialog.getDate(),
-                        dialog.getTime(),
-                        "30",           // Default duration
-                        "Consultation", // Default type
-                        "Active",       // Default status
-                        dialog.getReason(),
-                        "None",
-                        "Today", "Today"
+                        newID, patientID, doctorID, "General-Room",
+                        dialog.getDate(), dialog.getTime(), "30", "Consultation",
+                        "Active", dialog.getReason(), "None", "Today", "Today"
                 );
 
-                // Update the Table
                 appointments.add(newAppt);
-                apptModel.fireTableDataChanged(); // Tell table to refresh!
-
-                // Save to File
+                apptModel.fireTableDataChanged();
                 loader.addAppointment("appointments.csv", newAppt);
 
                 JOptionPane.showMessageDialog(this, "Appointment Booked Successfully!");
             }
         });
+
+        // Cancel Appointment
+        cancelButton.addActionListener(e -> {
+            int selectedRow = apptTable.getSelectedRow();
+
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Please select an appointment to cancel.");
+            } else {
+                int confirm = JOptionPane.showConfirmDialog(this,
+                        "Are you sure you want to cancel this appointment?",
+                        "Confirm Cancellation",
+                        JOptionPane.YES_NO_OPTION);
+
+                if (confirm == JOptionPane.YES_OPTION) {
+                    // Remove from list
+                    appointments.remove(selectedRow);
+                    // Refresh table
+                    apptModel.fireTableDataChanged();
+                    // Save to file
+                    loader.saveAllAppointments("appointments.csv", appointments);
+
+                    JOptionPane.showMessageDialog(this, "Appointment Cancelled.");
+                }
+            }
+        });
+
+
 
 
 

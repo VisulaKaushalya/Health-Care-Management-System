@@ -155,6 +155,7 @@ public class CSVHandler {
                     a.getType(),
                     a.getStatus(),
                     a.getReason(),
+
                     "None", // Default note
                     "N/A",  // Created
                     "N/A"   // Modified
@@ -164,6 +165,39 @@ public class CSVHandler {
 
         } catch (IOException e) {
             System.out.println("Error saving appointment: " + e.getMessage());
+        }
+    }
+    // appointment save to file
+
+    public void saveAllAppointments(String filePath, List<Appointment> appointments) {
+        try (PrintWriter out = new PrintWriter(new FileWriter(filePath))) {
+
+            // 1. Write the Header first
+            out.println("appointment_id, patient_id, clinician_id, facility_id, appointment_date, appointment_time, duration_minutes, appointment_type, status, reason_for_visit, notes, created_date, last_modified");
+
+            // 2. Loop through the list and write each one
+            for (Appointment a : appointments) {
+                String record = String.join(",",
+                        a.getAppointmentID(),
+                        a.getPatientID(),
+                        a.getClinicianID(),
+                        a.getFacilityID(),
+                        a.getDate(),
+                        a.getTime(),
+                        a.getDuration(),
+                        a.getType(),
+                        a.getStatus(),
+                        a.getReason(),
+                        a.getNotes(),
+                        a.getCreatedDate(),
+                        a.getLastModified(),
+                        "N/A", // You can use a.getCreatedDate() if you have the getter
+                        "N/A"
+                );
+                out.println(record);
+            }
+        } catch (IOException e) {
+            System.out.println("Error saving all appointments: " + e.getMessage());
         }
     }
 
