@@ -163,12 +163,122 @@ public class MainFrame extends JFrame {
 
 
 
-        // --------------------------------- DOCTORS ----------------------------------
+
+
+
+
+
+
+
+// --------------------------------------------DOCTORS ---------------------------------------------------------
         JPanel doctorPanel = new JPanel(new BorderLayout());
         ClinicianTableModel docModel = new ClinicianTableModel(clinicians);
         JTable docTable = new JTable(docModel);
         docTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
+        // A. Top Panel (Search + Buttons)
+        JPanel doctorTopPanel = new JPanel(new BorderLayout());
+        doctorTopPanel.add(createSearchPanel(docTable), BorderLayout.NORTH);
+
+        JPanel docButtonPanel = new JPanel();
+        JButton btnAddDoc = new JButton("Add Doctor");
+        JButton btnEditDoc = new JButton("Edit");
+        JButton btnDelDoc = new JButton("Delete");
+
+        docButtonPanel.add(btnAddDoc);
+        docButtonPanel.add(btnEditDoc);
+        docButtonPanel.add(btnDelDoc);
+
+        doctorTopPanel.add(docButtonPanel, BorderLayout.SOUTH);
+
+        doctorPanel.add(doctorTopPanel, BorderLayout.NORTH);
         doctorPanel.add(new JScrollPane(docTable), BorderLayout.CENTER);
+
+
+        //  ADD DOCTOR
+        btnAddDoc.addActionListener(e -> {
+            ClinicianDialog dialog = new ClinicianDialog(this, null);
+            dialog.setVisible(true);
+
+            if (dialog.isSubmitted()) {
+                String newID = "C" + (clinicians.size() + 1001);
+                String today = java.time.LocalDate.now().toString();
+
+                Clinician c = new Clinician(
+                        newID, dialog.getFirstName(), dialog.getLastName(), dialog.getTitle(),
+                        dialog.getSpeciality(), dialog.getGmc(), dialog.getPhone(), dialog.getEmail(),
+                        dialog.getWorkplaceID(), dialog.getWorkplaceType(), dialog.getStatus(), today
+                );
+
+                clinicians.add(c);
+                docModel.fireTableDataChanged();
+                loader.saveClinicians("clinicians.csv", clinicians);
+            }
+        });
+
+        //  EDIT DOCTOR
+        btnEditDoc.addActionListener(e -> {
+            int row = docTable.getSelectedRow();
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Select a doctor to edit.");
+            } else {
+                int modelRow = docTable.convertRowIndexToModel(row);
+                Clinician c = clinicians.get(modelRow);
+
+                ClinicianDialog dialog = new ClinicianDialog(this, c);
+                dialog.setVisible(true);
+
+                if (dialog.isSubmitted()) {
+                    Clinician updated = new Clinician(
+                            c.getClinicianID(), // Keep ID
+                            dialog.getFirstName(), dialog.getLastName(), dialog.getTitle(),
+                            dialog.getSpeciality(), dialog.getGmc(), dialog.getPhone(), dialog.getEmail(),
+                            dialog.getWorkplaceID(), dialog.getWorkplaceType(), dialog.getStatus(),
+                            c.getStartDate() // Keep start date
+                    );
+
+                    clinicians.set(modelRow, updated);
+                    docModel.fireTableDataChanged();
+                    loader.saveClinicians("clinicians.csv", clinicians);
+                }
+            }
+        });
+
+        //  DELETE DOCTOR
+        btnDelDoc.addActionListener(e -> {
+            int row = docTable.getSelectedRow();
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Select a doctor to delete.");
+            } else {
+                if (JOptionPane.showConfirmDialog(this, "Delete this doctor?", "Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                    int modelRow = docTable.convertRowIndexToModel(row);
+                    clinicians.remove(modelRow);
+                    docModel.fireTableDataChanged();
+                    loader.saveClinicians("clinicians.csv", clinicians);
+                }
+            }
+        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         //-------------------------APPOINTMENTS -----------------------------------
         JPanel appointmentPanel = new JPanel(new BorderLayout());

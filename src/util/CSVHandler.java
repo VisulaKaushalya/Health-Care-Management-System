@@ -97,6 +97,12 @@ public class CSVHandler {
     }
 
 
+
+
+
+
+
+
     //------------------------clinicians-----------------------------------
 
     public List<Clinician> loadClinicians(String filePath) {
@@ -131,6 +137,33 @@ public class CSVHandler {
             System.out.println("Error reading clinicians: " + e.getMessage());
         }
         return clinicians;
+    }
+    //  SAVE CLINICIANS
+    public void saveClinicians(String filePath, List<model.Clinician> clinicians) {
+        try (PrintWriter out = new PrintWriter(new FileWriter(filePath))) {
+            // Header
+            out.println("clinician_id,first_name,last_name,title,speciality,gmc_number,phone_number,email,workplace_id,workplace_type,employment_status,start_date");
+
+            for (model.Clinician c : clinicians) {
+                String record = String.join(",",
+                        c.getClinicianID(),
+                        c.getFirstName(),
+                        c.getLastName(),
+                        c.getTitle(),
+                        c.getSpeciality(),
+                        c.getGmcNumber(),
+                        c.getPhoneNumber(),
+                        c.getEmail(),
+                        c.getWorkplaceID(),
+                        c.getWorkplaceType(),
+                        c.getEmploymentStatus(),
+                        c.getStartDate()
+                );
+                out.println(record);
+            }
+        } catch (IOException e) {
+            System.out.println("Error saving clinicians: " + e.getMessage());
+        }
     }
 
     //------------------Appointments------------------------------------------
