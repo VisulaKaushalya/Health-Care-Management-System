@@ -5,7 +5,6 @@ import model.Clinician;
 import model.Patient;
 import util.CSVHandler;
 import model.Prescription;
-import view.PrescriptionTableModel;
 import javax.swing.*;
 import javax.swing.table.TableRowSorter;
 import javax.swing.event.DocumentEvent;
@@ -359,15 +358,127 @@ public class MainFrame extends JFrame {
 
 
 
+
+
+
+
+
+
         //------------------------------ PRESCRIPTIONS ---------------------------------------
         JPanel prescriptionPanel = new JPanel(new BorderLayout());
         PrescriptionTableModel rxModel = new PrescriptionTableModel(prescriptions, patients, clinicians);
         JTable rxTable = new JTable(rxModel);
         rxTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
-        // Search Bar
-        prescriptionPanel.add(createSearchPanel(rxTable), BorderLayout.NORTH);
+        //  Top Panel (Search + Buttons)
+        JPanel rxTopPanel = new JPanel(new BorderLayout());
+        rxTopPanel.add(createSearchPanel(rxTable), BorderLayout.NORTH);
+
+        JPanel rxButtonPanel = new JPanel();
+        JButton btnAddRx = new JButton("Issue Prescription");
+        JButton btnEditRx = new JButton("Edit");
+        JButton btnDelRx = new JButton("Delete");
+
+        rxButtonPanel.add(btnAddRx);
+        rxButtonPanel.add(btnEditRx);
+        rxButtonPanel.add(btnDelRx);
+
+        rxTopPanel.add(rxButtonPanel, BorderLayout.SOUTH);
+
+        prescriptionPanel.add(rxTopPanel, BorderLayout.NORTH);
         prescriptionPanel.add(new JScrollPane(rxTable), BorderLayout.CENTER);
+
+        // --- PRESCRIPTION ACTIONS ---
+
+        // ADD PRESCRIPTION
+        btnAddRx.addActionListener(e -> {
+            // Pass patients & clinicians lists to the dialog
+            PrescriptionDialog dialog = new PrescriptionDialog(this, null, patients, clinicians, appointments);
+            dialog.setVisible(true);
+
+            if (dialog.isSubmitted()) {
+                String newID = "RX" + (prescriptions.size() + 1001);
+
+                Prescription p = new Prescription(
+                        newID,
+                        dialog.getSelectedPatientID(),
+                        dialog.getSelectedDoctorID(),
+                        dialog.getSelectedApptID(),
+                        dialog.getDate(),
+                        dialog.getMedication(),
+                        dialog.getDosage(),
+                        dialog.getFrequency(),
+                        dialog.getDuration(),
+                        dialog.getQuantity(),
+                        dialog.getInstructions(),
+                        dialog.getPharmacy(),
+                        dialog.getStatus(),
+                        dialog.getDate(), // Issue Date = Date
+                        "" // Collection Date (Empty initially)
+                );
+
+                prescriptions.add(p);
+                rxModel.fireTableDataChanged();
+                loader.savePrescriptions("prescriptions.csv", prescriptions);
+            }
+        });
+
+        //  EDIT PRESCRIPTION
+        btnEditRx.addActionListener(e -> {
+            int row = rxTable.getSelectedRow();
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Select a prescription to edit.");
+            } else {
+                int modelRow = rxTable.convertRowIndexToModel(row);
+                Prescription p = prescriptions.get(modelRow);
+
+                PrescriptionDialog dialog = new PrescriptionDialog(this, p, patients, clinicians, appointments);
+                dialog.setVisible(true);
+
+                if (dialog.isSubmitted()) {
+                    Prescription updated = new Prescription(
+                            p.getPrescriptionID(),
+                            dialog.getSelectedPatientID(),
+                            dialog.getSelectedDoctorID(),
+                            dialog.getSelectedApptID(),
+                            dialog.getDate(),
+                            dialog.getMedication(),
+                            dialog.getDosage(),
+                            dialog.getFrequency(),
+                            dialog.getDuration(),
+                            dialog.getQuantity(),
+                            dialog.getInstructions(),
+                            dialog.getPharmacy(),
+                            dialog.getStatus(),
+                            p.getIssueDate(),
+                            p.getCollectionDate()
+                    );
+
+                    prescriptions.set(modelRow, updated);
+                    rxModel.fireTableDataChanged();
+                    loader.savePrescriptions("prescriptions.csv", prescriptions);
+                }
+            }
+        });
+
+        // DELETE PRESCRIPTION
+        btnDelRx.addActionListener(e -> {
+            int row = rxTable.getSelectedRow();
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Select a prescription to delete.");
+            } else {
+                if (JOptionPane.showConfirmDialog(this, "Delete this prescription?", "Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                    int modelRow = rxTable.convertRowIndexToModel(row);
+                    prescriptions.remove(modelRow);
+                    rxModel.fireTableDataChanged();
+                    loader.savePrescriptions("prescriptions.csv", prescriptions);
+                }
+            }
+        });
+
+
+
+
 
 
 
