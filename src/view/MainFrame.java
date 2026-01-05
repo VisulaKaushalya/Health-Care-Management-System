@@ -3,6 +3,7 @@ package view;
 import model.Appointment;
 import model.Clinician;
 import model.Patient;
+import model.Staff;
 import util.CSVHandler;
 import model.Prescription;
 import javax.swing.*;
@@ -29,8 +30,11 @@ public class MainFrame extends JFrame {
         List<Clinician> clinicians = loader.loadClinicians("clinicians.csv");
         List<Appointment> appointments = loader.loadAppointments("appointments.csv");
         List<Prescription> prescriptions = loader.loadPrescriptions("prescriptions.csv");
+        List<model.Staff> staffList = loader.loadStaff("staff.csv");
 
         JTabbedPane tabbedPane = new JTabbedPane();
+
+
 
         // -------------------------------- PATIENTS ---------------------------------
 
@@ -482,6 +486,105 @@ public class MainFrame extends JFrame {
 
 
 
+        // ----------------------------------Staff--------------------------------------------------------
+
+
+        JPanel staffPanel = new JPanel(new BorderLayout());
+        StaffTableModel staffModel = new StaffTableModel(staffList); // Make sure you have this class!
+        JTable staffTable = new JTable(staffModel);
+        staffTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
+        //  Top Panel (Search + Buttons)
+        JPanel staffTopPanel = new JPanel(new BorderLayout());
+        staffTopPanel.add(createSearchPanel(staffTable), BorderLayout.NORTH);
+
+        JPanel staffButtonPanel = new JPanel();
+        JButton btnAddStaff = new JButton("Add Staff");
+        JButton btnEditStaff = new JButton("Edit");
+        JButton btnDelStaff = new JButton("Delete");
+
+        staffButtonPanel.add(btnAddStaff);
+        staffButtonPanel.add(btnEditStaff);
+        staffButtonPanel.add(btnDelStaff);
+
+        staffTopPanel.add(staffButtonPanel, BorderLayout.SOUTH);
+
+        staffPanel.add(staffTopPanel, BorderLayout.NORTH);
+        staffPanel.add(new JScrollPane(staffTable), BorderLayout.CENTER);
+
+        // --- STAFF ACTIONS ---
+
+        //  ADD STAFF
+        btnAddStaff.addActionListener(e -> {
+            StaffDialog dialog = new StaffDialog(this, null);
+            dialog.setVisible(true);
+
+            if (dialog.isSubmitted()) {
+                String newID = "S" + (staffList.size() + 1001);
+                String today = java.time.LocalDate.now().toString();
+
+                model.Staff s = new model.Staff(
+                        newID, dialog.getFirstName(), dialog.getLastName(), dialog.getRole(),
+                        dialog.getDepartment(), dialog.getFacility(), dialog.getPhone(),
+                        dialog.getEmail(), dialog.getStatus(), today,
+                        dialog.getManager(), dialog.getAccess()
+                );
+
+                staffList.add(s);
+                staffModel.fireTableDataChanged();
+                loader.saveStaff("staff.csv", staffList);
+            }
+        });
+
+        //  EDIT STAFF
+        btnEditStaff.addActionListener(e -> {
+            int row = staffTable.getSelectedRow();
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Select a staff member to edit.");
+            } else {
+                int modelRow = staffTable.convertRowIndexToModel(row);
+                model.Staff s = staffList.get(modelRow);
+
+                StaffDialog dialog = new StaffDialog(this, s);
+                dialog.setVisible(true);
+
+                if (dialog.isSubmitted()) {
+                    model.Staff updated = new model.Staff(
+                            s.getStaffID(), // Keep ID
+                            dialog.getFirstName(), dialog.getLastName(), dialog.getRole(),
+                            dialog.getDepartment(), dialog.getFacility(), dialog.getPhone(),
+                            dialog.getEmail(), dialog.getStatus(), s.getStartDate(), // Keep Start Date
+                            dialog.getManager(), dialog.getAccess()
+                    );
+
+                    staffList.set(modelRow, updated);
+                    staffModel.fireTableDataChanged();
+                    loader.saveStaff("staff.csv", staffList);
+                }
+            }
+        });
+
+        //  DELETE STAFF
+        btnDelStaff.addActionListener(e -> {
+            int row = staffTable.getSelectedRow();
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Select a staff member to delete.");
+            } else {
+                if (JOptionPane.showConfirmDialog(this, "Delete this staff member?", "Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                    int modelRow = staffTable.convertRowIndexToModel(row);
+                    staffList.remove(modelRow);
+                    staffModel.fireTableDataChanged();
+                    loader.saveStaff("staff.csv", staffList);
+                }
+            }
+        });
+
+
+
+
+
+
+
 
 
         // Add Tabs
@@ -489,6 +592,7 @@ public class MainFrame extends JFrame {
         tabbedPane.addTab("Doctors", doctorPanel);
         tabbedPane.addTab("Appointments", appointmentPanel);
         tabbedPane.addTab("Prescriptions", prescriptionPanel);
+        tabbedPane.addTab("Staff", staffPanel);
 
         add(tabbedPane);
         setVisible(true);

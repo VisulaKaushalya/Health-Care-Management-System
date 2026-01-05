@@ -323,4 +323,69 @@ public class CSVHandler {
     }
 
 
+
+
+    // -----------------------------------------STAFF----------------------------------------------------
+    //  LOAD STAFF (Paste this!)
+    public List<model.Staff> loadStaff(String filePath) {
+        List<model.Staff> list = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            br.readLine(); // Skip header
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split(",");
+                // Ensure we have at least 12 columns
+                if (data.length >= 12) {
+                    model.Staff s = new model.Staff(
+                            data[0], // ID
+                            data[1], // First Name
+                            data[2], // Last Name
+                            data[3], // Role
+                            data[4], // Dept
+                            data[5], // Facility
+                            data[6], // Phone
+                            data[7], // Email
+                            data[8], // Status
+                            data[9], // Start Date
+                            data[10], // Manager
+                            data[11]  // Access Level
+                    );
+                    list.add(s);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading staff: " + e.getMessage());
+        }
+        return list;
+    }
+
+    //  SAVE STAFF
+    public void saveStaff(String filePath, List<model.Staff> staffList) {
+        try (PrintWriter out = new PrintWriter(new FileWriter(filePath))) {
+            // Header matching the CSV
+            out.println("staff_id,first_name,last_name,role,department,facility_id,phone_number,email,status,start_date,manager,access_level");
+
+            for (model.Staff s : staffList) {
+                String record = String.join(",",
+                        s.getStaffID(),
+                        s.getFirstName(),
+                        s.getLastName(),
+                        s.getRole(),
+                        s.getDepartment(),
+                        s.getFacilityID(),
+                        s.getPhone(),
+                        s.getEmail(),
+                        s.getStatus(),
+                        s.getStartDate(),
+                        s.getManager(),
+                        s.getAccessLevel()
+                );
+                out.println(record);
+            }
+        } catch (IOException e) {
+            System.out.println("Error saving staff: " + e.getMessage());
+        }
+    }
+
+
 }
