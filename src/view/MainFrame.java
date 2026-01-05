@@ -31,6 +31,7 @@ public class MainFrame extends JFrame {
         List<Appointment> appointments = loader.loadAppointments("appointments.csv");
         List<Prescription> prescriptions = loader.loadPrescriptions("prescriptions.csv");
         List<model.Staff> staffList = loader.loadStaff("staff.csv");
+        List<model.Facility> facilities = loader.loadFacilities("facilities.csv");
 
         JTabbedPane tabbedPane = new JTabbedPane();
 
@@ -587,12 +588,127 @@ public class MainFrame extends JFrame {
 
 
 
+
+
+
+
+
+
+
+
+
+        // ------------------------------ FACILITIES ------------------------------------------------------
+        JPanel facilityPanel = new JPanel(new BorderLayout());
+        FacilityTableModel facilityModel = new FacilityTableModel(facilities);
+        JTable facilityTable = new JTable(facilityModel);
+        facilityTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
+        // A. Top Panel (Search + Buttons)
+        JPanel facTopPanel = new JPanel(new BorderLayout());
+        facTopPanel.add(createSearchPanel(facilityTable), BorderLayout.NORTH);
+
+        JPanel facButtonPanel = new JPanel();
+        JButton btnAddFac = new JButton("Add Facility");
+        JButton btnEditFac = new JButton("Edit");
+        JButton btnDelFac = new JButton("Delete");
+
+        facButtonPanel.add(btnAddFac);
+        facButtonPanel.add(btnEditFac);
+        facButtonPanel.add(btnDelFac);
+
+        facTopPanel.add(facButtonPanel, BorderLayout.SOUTH);
+
+        facilityPanel.add(facTopPanel, BorderLayout.NORTH);
+        facilityPanel.add(new JScrollPane(facilityTable), BorderLayout.CENTER);
+
+        // --- FACILITY ACTIONS ---
+
+        // 1. ADD FACILITY
+        btnAddFac.addActionListener(e -> {
+            FacilityDialog dialog = new FacilityDialog(this, null);
+            dialog.setVisible(true);
+
+            if (dialog.isSubmitted()) {
+                String newID = "F" + (facilities.size() + 101); // Simple ID generation
+
+                model.Facility f = new model.Facility(
+                        newID, dialog.getName(), dialog.getFacilityType(), dialog.getAddress(),
+                        dialog.getPostcode(), dialog.getPhone(), dialog.getEmail(),
+                        dialog.getHours(), dialog.getManager(), dialog.getCapacity(),
+                        dialog.getSpecialities()
+                );
+
+                facilities.add(f);
+                facilityModel.fireTableDataChanged();
+                loader.saveFacilities("facilities.csv", facilities);
+            }
+        });
+
+        // 2. EDIT FACILITY
+        btnEditFac.addActionListener(e -> {
+            int row = facilityTable.getSelectedRow();
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Select a facility to edit.");
+            } else {
+                int modelRow = facilityTable.convertRowIndexToModel(row);
+                model.Facility f = facilities.get(modelRow);
+
+                FacilityDialog dialog = new FacilityDialog(this, f);
+                dialog.setVisible(true);
+
+                if (dialog.isSubmitted()) {
+                    model.Facility updated = new model.Facility(
+                            f.getFacilityID(), // Keep ID
+                            dialog.getName(), dialog.getFacilityType(), dialog.getAddress(),
+                            dialog.getPostcode(), dialog.getPhone(), dialog.getEmail(),
+                            dialog.getHours(), dialog.getManager(), dialog.getCapacity(),
+                            dialog.getSpecialities()
+                    );
+
+                    facilities.set(modelRow, updated);
+                    facilityModel.fireTableDataChanged();
+                    loader.saveFacilities("facilities.csv", facilities);
+                }
+            }
+        });
+
+        // 3. DELETE FACILITY
+        btnDelFac.addActionListener(e -> {
+            int row = facilityTable.getSelectedRow();
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Select a facility to delete.");
+            } else {
+                if (JOptionPane.showConfirmDialog(this, "Delete this facility?", "Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                    int modelRow = facilityTable.convertRowIndexToModel(row);
+                    facilities.remove(modelRow);
+                    facilityModel.fireTableDataChanged();
+                    loader.saveFacilities("facilities.csv", facilities);
+                }
+            }
+        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         // Add Tabs
         tabbedPane.addTab("Patients", patientPanel);
         tabbedPane.addTab("Doctors", doctorPanel);
         tabbedPane.addTab("Appointments", appointmentPanel);
         tabbedPane.addTab("Prescriptions", prescriptionPanel);
         tabbedPane.addTab("Staff", staffPanel);
+        tabbedPane.addTab("Facilities", facilityPanel);
 
         add(tabbedPane);
         setVisible(true);

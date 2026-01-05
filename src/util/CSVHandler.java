@@ -388,4 +388,66 @@ public class CSVHandler {
     }
 
 
+
+
+
+
+
+
+
+
+
+    // --------------------------------FACILITIES------------------------------------------------
+
+    //  LOAD FACILITIES
+    public List<model.Facility> loadFacilities(String filePath) {
+        List<model.Facility> list = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            br.readLine(); // Skip header
+            String line;
+            while ((line = br.readLine()) != null) {
+                // Regex split for commas inside quotes
+                String[] data = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+
+                if (data.length >= 11) {
+                    // Clean quotes from Address and Hours
+                    String cleanAddress = data[3].replace("\"", "");
+                    String cleanHours = data[7].replace("\"", "");
+
+                    model.Facility f = new model.Facility(
+                            data[0], data[1], data[2], cleanAddress, data[4],
+                            data[5], data[6], cleanHours, data[8], data[9], data[10]
+                    );
+                    list.add(f);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading facilities: " + e.getMessage());
+        }
+        return list;
+    }
+
+    // SAVE FACILITIES
+    public void saveFacilities(String filePath, List<model.Facility> facilities) {
+        try (PrintWriter out = new PrintWriter(new FileWriter(filePath))) {
+            out.println("facility_id,facility_name,facility_type,address,postcode,phone_number,email,opening_hours,manager_name,capacity,specialities_offered");
+
+            for (model.Facility f : facilities) {
+                // Re-quote fields with commas
+                String safeAddress = "\"" + f.getAddress() + "\"";
+                String safeHours = "\"" + f.getOpeningHours() + "\"";
+
+                String record = String.join(",",
+                        f.getFacilityID(), f.getName(), f.getType(), safeAddress,
+                        f.getPostcode(), f.getPhone(), f.getEmail(), safeHours,
+                        f.getManagerName(), f.getCapacity(), f.getSpecialities()
+                );
+                out.println(record);
+            }
+        } catch (IOException e) {
+            System.out.println("Error saving facilities: " + e.getMessage());
+        }
+    }
+
+
 }
