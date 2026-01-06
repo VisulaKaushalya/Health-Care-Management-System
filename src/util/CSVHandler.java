@@ -166,6 +166,12 @@ public class CSVHandler {
         }
     }
 
+
+
+
+
+
+
     //------------------Appointments------------------------------------------
 
     public List<Appointment> loadAppointments(String filePath) {
@@ -267,6 +273,13 @@ public class CSVHandler {
         }
     }
 
+
+
+
+
+
+
+    // ---------------------------------Prescription--------------------------------------
     // prescription data load
 
     public List<model.Prescription> loadPrescriptions(String filePath) {
@@ -321,6 +334,8 @@ public class CSVHandler {
             System.out.println("Error saving prescriptions: " + e.getMessage());
         }
     }
+
+
 
 
 
@@ -446,6 +461,59 @@ public class CSVHandler {
             }
         } catch (IOException e) {
             System.out.println("Error saving facilities: " + e.getMessage());
+        }
+    }
+
+
+
+    // ---------------------------------Referrals--------------------------------------------------
+
+    // 9. LOAD REFERRALS
+    public List<model.Referral> loadReferrals(String filePath) {
+        List<model.Referral> list = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            br.readLine(); // Skip header
+            String line;
+            while ((line = br.readLine()) != null) {
+                // Regex split to handle commas inside quotes
+                String[] data = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+
+                if (data.length >= 16) {
+                    model.Referral r = new model.Referral(
+                            data[0], data[1], data[2], data[3], data[4],
+                            data[5], data[6], data[7], data[8], data[9],
+                            data[10], data[11], data[12], data[13], data[14], data[15]
+                    );
+                    list.add(r);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading referrals: " + e.getMessage());
+        }
+        return list;
+    }
+
+    // 10. SAVE REFERRALS
+    public void saveReferrals(String filePath, List<model.Referral> referrals) {
+        try (PrintWriter out = new PrintWriter(new FileWriter(filePath))) {
+            out.println("referral_id,patient_id,referring_clinician_id,referred_to_clinician_id,referring_facility_id,referred_to_facility_id,referral_date,urgency_level,referral_reason,clinical_summary,requested_investigations,status,appointment_id,notes,created_date,last_updated");
+
+            for (model.Referral r : referrals) {
+                // Wrap text fields in quotes to be safe
+                String safeSummary = "\"" + r.getSummary() + "\"";
+                String safeReason = "\"" + r.getReason() + "\"";
+                String safeNotes = "\"" + r.getNotes() + "\"";
+
+                String record = String.join(",",
+                        r.getReferralID(), r.getPatientID(), r.getReferringDoctorID(), r.getReferredToDoctorID(),
+                        r.getReferringFacilityID(), r.getReferredToFacilityID(), r.getDate(), r.getUrgency(),
+                        safeReason, safeSummary, r.getInvestigations(), r.getStatus(),
+                        r.getAppointmentID(), safeNotes, r.getCreatedDate(), r.getLastUpdated()
+                );
+                out.println(record);
+            }
+        } catch (IOException e) {
+            System.out.println("Error saving referrals: " + e.getMessage());
         }
     }
 

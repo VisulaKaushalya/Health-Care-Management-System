@@ -1,21 +1,25 @@
 package controller;
 
-import model.Patient;
-import model.Clinician;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.time.LocalDate;
+import model.Referral;
+import util.CSVHandler;
+import java.util.List;
+import java.util.ArrayList;
 
 public class ReferralManager {
-    //static instance
+    // 1. The static instance (The Singleton)
     private static ReferralManager instance;
 
-    //constructor
+    // The data it manages
+    private List<Referral> referrals;
+    private CSVHandler csvHandler;
+
+    // 2. Private Constructor (Prevents direct instantiation)
     private ReferralManager() {
+        this.csvHandler = new CSVHandler();
+        this.referrals = new ArrayList<>();
     }
 
-    //public method
+    // 3. Public Method to get the ONLY instance
     public static ReferralManager getInstance() {
         if (instance == null) {
             instance = new ReferralManager();
@@ -23,26 +27,29 @@ public class ReferralManager {
         return instance;
     }
 
-    //business logic, create referral
+    // --- Business Logic Methods ---
 
-    public void createReferral(Patient patient, Clinician doctor, String notes){
-        //simulate an email
+    public void loadData(String filePath) {
+        this.referrals = csvHandler.loadReferrals(filePath);
+    }
 
-        try (FileWriter fw = new FileWriter("referrals_log.txt",true);
-            PrintWriter out = new PrintWriter(fw)){
+    public void saveData(String filePath) {
+        csvHandler.saveReferrals(filePath, this.referrals);
+    }
 
-            out.println("--- REFERRAL SENT---");
-            out.println("Date: " + LocalDate.now());
-            out.println("From: Dr. " + doctor.getLastName());
-            out.println("Patient: " + patient.getFirstName() + " " + patient.getLastName());
-            out.println("Details: " + notes);
-            out.println("-----------------------\n");
+    public List<Referral> getAllReferrals() {
+        return this.referrals;
+    }
 
-            System.out.println("Success: Referral logged for " + patient.getLastName());
-        }
+    public void addReferral(Referral r) {
+        referrals.add(r);
+    }
 
-        catch (IOException e){
-        System.out.println("Error creating referral: " + e.getMessage());
-        }
+    public void updateReferral(int index, Referral r) {
+        referrals.set(index, r);
+    }
+
+    public void deleteReferral(int index) {
+        referrals.remove(index);
     }
 }

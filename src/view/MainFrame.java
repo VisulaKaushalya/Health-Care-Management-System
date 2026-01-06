@@ -4,6 +4,11 @@ import model.Appointment;
 import model.Clinician;
 import model.Patient;
 import model.Staff;
+import model.Referral;
+import controller.ReferralManager;
+import view.ReferralTableModel;
+import view.ReferralDialog;
+
 import util.CSVHandler;
 import model.Prescription;
 import javax.swing.*;
@@ -32,6 +37,11 @@ public class MainFrame extends JFrame {
         List<Prescription> prescriptions = loader.loadPrescriptions("prescriptions.csv");
         List<model.Staff> staffList = loader.loadStaff("staff.csv");
         List<model.Facility> facilities = loader.loadFacilities("facilities.csv");
+        ReferralManager refManager = ReferralManager.getInstance();
+        List<model.Referral> referralList = refManager.getAllReferrals();
+
+
+        refManager.loadData("referrals.csv");
 
         JTabbedPane tabbedPane = new JTabbedPane();
 
@@ -691,6 +701,135 @@ public class MainFrame extends JFrame {
 
 
 
+        // --- TAB 7: REFERRALS (Using Singleton) ---
+        JPanel refPanel = new JPanel(new BorderLayout());
+
+        // Model gets the list from the Singleton
+        ReferralTableModel refModel = new ReferralTableModel(refManager.getAllReferrals());
+        JTable refTable = new JTable(refModel);
+        refTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
+        // Top Panel
+        JPanel refTopPanel = new JPanel(new BorderLayout());
+        refTopPanel.add(createSearchPanel(refTable), BorderLayout.NORTH);
+
+        JPanel refButtonPanel = new JPanel();
+        JButton btnAddRef = new JButton("Create Referral");
+        JButton btnEditRef = new JButton("Edit");
+        JButton btnDelRef = new JButton("Delete");
+
+        refButtonPanel.add(btnAddRef);
+        refButtonPanel.add(btnEditRef);
+        refButtonPanel.add(btnDelRef);
+
+        refTopPanel.add(refButtonPanel, BorderLayout.SOUTH);
+
+        refPanel.add(refTopPanel, BorderLayout.NORTH);
+        refPanel.add(new JScrollPane(refTable), BorderLayout.CENTER);
+
+        // --- REFERRAL ACTIONS ---
+
+        // 1. ADD REFERRAL
+        btnAddRef.addActionListener(e -> {
+            // Pass the lists for Dropdowns (Patients, Docs, Facilities)
+            ReferralDialog dialog = new ReferralDialog(this, null, patients, clinicians, facilities);
+            dialog.setVisible(true);
+
+            if (dialog.isSubmitted()) {
+                String newID = "R" + (refManager.getAllReferrals().size() + 1001);
+                String today = java.time.LocalDate.now().toString();
+
+                model.Referral r = new model.Referral(
+                        newID,
+                        dialog.getPatientID(),
+                        dialog.getRefDoctorID(),
+                        dialog.getToDoctorID(),
+                        dialog.getFromFacilityID(),
+                        dialog.getToFacilityID(),
+                        dialog.getDate(),
+                        dialog.getUrgency(),
+                        dialog.getReason(),
+                        dialog.getSummary(),
+                        dialog.getInvestigations(),
+                        dialog.getStatus(),
+                        dialog.getApptID(),
+                        dialog.getNotes(),
+                        today, // Created Date
+                        today  // Last Updated
+                );
+
+                // USE SINGLETON TO ADD & SAVE
+                refManager.addReferral(r);
+                refModel.fireTableDataChanged();
+                refManager.saveData("referrals.csv");
+            }
+        });
+
+        // 2. EDIT REFERRAL
+        btnEditRef.addActionListener(e -> {
+            int row = refTable.getSelectedRow();
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Select a referral to edit.");
+            } else {
+                int modelRow = refTable.convertRowIndexToModel(row);
+                model.Referral r = refManager.getAllReferrals().get(modelRow);
+
+                ReferralDialog dialog = new ReferralDialog(this, r, patients, clinicians, facilities);
+                dialog.setVisible(true);
+
+                if (dialog.isSubmitted()) {
+                    String today = java.time.LocalDate.now().toString();
+
+                    model.Referral updated = new model.Referral(
+                            r.getReferralID(),
+                            dialog.getPatientID(),
+                            dialog.getRefDoctorID(),
+                            dialog.getToDoctorID(),
+                            dialog.getFromFacilityID(),
+                            dialog.getToFacilityID(),
+                            dialog.getDate(),
+                            dialog.getUrgency(),
+                            dialog.getReason(),
+                            dialog.getSummary(),
+                            dialog.getInvestigations(),
+                            dialog.getStatus(),
+                            dialog.getApptID(),
+                            dialog.getNotes(),
+                            r.getCreatedDate(), // Keep Created Date
+                            today // Update "Last Updated"
+                    );
+
+                    // USE SINGLETON TO UPDATE
+                    refManager.updateReferral(modelRow, updated);
+                    refModel.fireTableDataChanged();
+                    refManager.saveData("referrals.csv");
+                }
+            }
+        });
+
+        // 3. DELETE REFERRAL
+        btnDelRef.addActionListener(e -> {
+            int row = refTable.getSelectedRow();
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Select a referral to delete.");
+            } else {
+                if (JOptionPane.showConfirmDialog(this, "Delete this referral?", "Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                    int modelRow = refTable.convertRowIndexToModel(row);
+
+                    // USE SINGLETON TO DELETE
+                    refManager.deleteReferral(modelRow);
+                    refModel.fireTableDataChanged();
+                    refManager.saveData("referrals.csv");
+                }
+            }
+        });
+
+
+
+
+
+
+
 
 
 
@@ -709,6 +848,7 @@ public class MainFrame extends JFrame {
         tabbedPane.addTab("Prescriptions", prescriptionPanel);
         tabbedPane.addTab("Staff", staffPanel);
         tabbedPane.addTab("Facilities", facilityPanel);
+        tabbedPane.addTab("Referrals", refPanel);
 
         add(tabbedPane);
         setVisible(true);
