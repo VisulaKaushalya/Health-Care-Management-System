@@ -5,6 +5,7 @@ import model.Clinician;
 import model.Patient;
 import model.Staff;
 import model.Referral;
+import util.ReportGenerator;
 import controller.ReferralManager;
 import view.ReferralTableModel;
 import view.ReferralDialog;
@@ -393,10 +394,12 @@ public class MainFrame extends JFrame {
         JButton btnAddRx = new JButton("Issue Prescription");
         JButton btnEditRx = new JButton("Edit");
         JButton btnDelRx = new JButton("Delete");
+        JButton btnPrintRx = new JButton("Print to File");
 
         rxButtonPanel.add(btnAddRx);
         rxButtonPanel.add(btnEditRx);
         rxButtonPanel.add(btnDelRx);
+        rxButtonPanel.add(btnPrintRx);
 
         rxTopPanel.add(rxButtonPanel, BorderLayout.SOUTH);
 
@@ -488,6 +491,18 @@ public class MainFrame extends JFrame {
                     rxModel.fireTableDataChanged();
                     loader.savePrescriptions("prescriptions.csv", prescriptions);
                 }
+            }
+        });
+
+        // PRINT PRESCRIPTION
+        btnPrintRx.addActionListener(e -> {
+            int row = rxTable.getSelectedRow();
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Select a prescription to print.");
+            } else {
+                int modelRow = rxTable.convertRowIndexToModel(row);
+                model.Prescription p = prescriptions.get(modelRow);
+                util.ReportGenerator.generatePrescription(p);
             }
         });
 
@@ -717,10 +732,13 @@ public class MainFrame extends JFrame {
         JButton btnAddRef = new JButton("Create Referral");
         JButton btnEditRef = new JButton("Edit");
         JButton btnDelRef = new JButton("Delete");
+        JButton btnPrintRef = new JButton("Print Letter");
+
 
         refButtonPanel.add(btnAddRef);
         refButtonPanel.add(btnEditRef);
         refButtonPanel.add(btnDelRef);
+        refButtonPanel.add(btnPrintRef);
 
         refTopPanel.add(refButtonPanel, BorderLayout.SOUTH);
 
@@ -824,6 +842,18 @@ public class MainFrame extends JFrame {
             }
         });
 
+        // PRINT REFERRAL
+        btnPrintRef.addActionListener(e -> {
+            int row = refTable.getSelectedRow();
+            if (row == -1) {
+                JOptionPane.showMessageDialog(this, "Select a referral to print.");
+            } else {
+                int modelRow = refTable.convertRowIndexToModel(row);
+                model.Referral r = refManager.getAllReferrals().get(modelRow);
+                util.ReportGenerator.generateReferral(r);
+            }
+        });
+
 
 
 
@@ -856,6 +886,8 @@ public class MainFrame extends JFrame {
 
 
     }
+
+
 
 
 
