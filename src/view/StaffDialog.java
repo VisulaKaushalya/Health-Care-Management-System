@@ -2,41 +2,64 @@ package view;
 
 import model.Staff;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 public class StaffDialog extends JDialog {
-    // Fields
+
+    // UI Components
     private JTextField txtFirstName = new JTextField();
     private JTextField txtLastName = new JTextField();
-    private JComboBox<String> cmbRole = new JComboBox<>(new String[]{"Receptionist", "Nurse", "Manager", "Admin", "Cleaner"});
+
+    private JComboBox<String> cmbRole = new JComboBox<>(new String[]{
+            "Receptionist", "Practice Manager", "Medical Secretary", "Healthcare Assistant",
+            "Hospital Administrator", "Ward Clerk", "Porter", "Cleaner", "Appointments Coordinator",
+            "Medical Records Clerk", "Children's Unit Coordinator"
+    });
+
     private JTextField txtDepartment = new JTextField();
-    private JTextField txtFacility = new JTextField();
+    private JTextField txtFacilityID = new JTextField();
     private JTextField txtPhone = new JTextField();
     private JTextField txtEmail = new JTextField();
-    private JComboBox<String> cmbStatus = new JComboBox<>(new String[]{"Active", "On Leave", "Resigned"});
-    private JTextField txtManager = new JTextField(); // Could be a dropdown in future
-    private JComboBox<String> cmbAccess = new JComboBox<>(new String[]{"1", "2", "3", "4", "5"}); // Security Level
+
+    // Employment Status
+    private JComboBox<String> cmbStatus = new JComboBox<>(new String[]{"Full-time", "Part-time", "Locum"});
+
+    private JTextField txtManager = new JTextField();
+
+    private JComboBox<String> cmbAccess = new JComboBox<>(new String[]{"Basic", "Standard", "Manager"});
 
     private boolean submitted = false;
 
     public StaffDialog(Frame owner, Staff s) {
-        super(owner, (s == null) ? "Add Staff Member" : "Edit Staff Member", true);
-        setSize(400, 550);
+        super(owner, (s == null) ? "Add Staff" : "Edit Staff", true);
+
+        setSize(450, 600);
         setLocationRelativeTo(owner);
-        setLayout(new GridLayout(11, 2, 5, 5));
+        setLayout(new BorderLayout());
 
-        // Add Fields
-        add(new JLabel("First Name:"));     add(txtFirstName);
-        add(new JLabel("Last Name:"));      add(txtLastName);
-        add(new JLabel("Role:"));           add(cmbRole);
-        add(new JLabel("Department:"));     add(txtDepartment);
-        add(new JLabel("Facility ID:"));    add(txtFacility);
-        add(new JLabel("Phone:"));          add(txtPhone);
-        add(new JLabel("Email:"));          add(txtEmail);
-        add(new JLabel("Status:"));         add(cmbStatus);
-        add(new JLabel("Manager Name:"));   add(txtManager);
-        add(new JLabel("Access Level:"));   add(cmbAccess);
+        // custom roles
+        cmbRole.setEditable(true);
 
+        // Form Panel
+        JPanel formPanel = new JPanel(new GridLayout(11, 2, 10, 10));
+        formPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
+
+        formPanel.add(new JLabel("First Name:"));     formPanel.add(txtFirstName);
+        formPanel.add(new JLabel("Last Name:"));      formPanel.add(txtLastName);
+        formPanel.add(new JLabel("Role:"));           formPanel.add(cmbRole);
+        formPanel.add(new JLabel("Department:"));     formPanel.add(txtDepartment);
+        formPanel.add(new JLabel("Facility ID:"));    formPanel.add(txtFacilityID);
+        formPanel.add(new JLabel("Phone:"));          formPanel.add(txtPhone);
+        formPanel.add(new JLabel("Email:"));          formPanel.add(txtEmail);
+        formPanel.add(new JLabel("Status:"));         formPanel.add(cmbStatus);
+        formPanel.add(new JLabel("Manager Name:"));   formPanel.add(txtManager);
+        formPanel.add(new JLabel("Access Level:"));   formPanel.add(cmbAccess);
+
+        add(formPanel, BorderLayout.CENTER);
+
+        // Button Panel
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton btnCancel = new JButton("Cancel");
         JButton btnSave = new JButton("Save");
 
@@ -46,15 +69,16 @@ public class StaffDialog extends JDialog {
             dispose();
         });
 
-        add(btnCancel); add(btnSave);
+        btnPanel.add(btnCancel); btnPanel.add(btnSave);
+        add(btnPanel, BorderLayout.SOUTH);
 
-        // Pre-fill if Editing
+        // Pre-fill
         if (s != null) {
             txtFirstName.setText(s.getFirstName());
             txtLastName.setText(s.getLastName());
             cmbRole.setSelectedItem(s.getRole());
             txtDepartment.setText(s.getDepartment());
-            txtFacility.setText(s.getFacilityID());
+            txtFacilityID.setText(s.getFacilityID());
             txtPhone.setText(s.getPhone());
             txtEmail.setText(s.getEmail());
             cmbStatus.setSelectedItem(s.getStatus());
@@ -63,14 +87,14 @@ public class StaffDialog extends JDialog {
         }
     }
 
+    // Getters
     public boolean isSubmitted() { return submitted; }
 
-    // Getters
     public String getFirstName() { return txtFirstName.getText(); }
     public String getLastName() { return txtLastName.getText(); }
     public String getRole() { return cmbRole.getSelectedItem().toString(); }
     public String getDepartment() { return txtDepartment.getText(); }
-    public String getFacility() { return txtFacility.getText(); }
+    public String getFacilityID() { return txtFacilityID.getText(); }
     public String getPhone() { return txtPhone.getText(); }
     public String getEmail() { return txtEmail.getText(); }
     public String getStatus() { return cmbStatus.getSelectedItem().toString(); }

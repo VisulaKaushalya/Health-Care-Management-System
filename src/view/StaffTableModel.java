@@ -1,8 +1,11 @@
 package view;
 
+import model.Facility;
 import model.Staff;
 import javax.swing.table.AbstractTableModel;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class StaffTableModel extends AbstractTableModel {
     private final String[] columnNames = {
@@ -10,10 +13,20 @@ public class StaffTableModel extends AbstractTableModel {
             "Facility", "Phone", "Email", "Status", "Start Date",
             "Manager", "Access Lvl"
     };
-    private final List<Staff> staffList;
 
-    public StaffTableModel(List<Staff> staffList) {
+    private final List<Staff> staffList;
+    private final Map<String, String> facilityMap = new HashMap<>();
+
+    // Constructor
+    public StaffTableModel(List<Staff> staffList, List<Facility> facilities) {
         this.staffList = staffList;
+
+        // lookup map (ID - Name)
+        if (facilities != null) {
+            for (Facility f : facilities) {
+                facilityMap.put(f.getFacilityID(), f.getName());
+            }
+        }
     }
 
     @Override
@@ -34,7 +47,9 @@ public class StaffTableModel extends AbstractTableModel {
             case 2: return s.getLastName();
             case 3: return s.getRole();
             case 4: return s.getDepartment();
-            case 5: return s.getFacilityID();
+
+            case 5: return facilityMap.getOrDefault(s.getFacilityID(), s.getFacilityID());
+
             case 6: return s.getPhone();
             case 7: return s.getEmail();
             case 8: return s.getStatus();

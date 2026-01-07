@@ -1,0 +1,27 @@
+HEALTHCARE MANAGEMENT SYSTEM - REFERRAL LETTER
+==================================================
+Referral ID: R001
+Date:        2025-09-10
+Urgency:     Routine
+--------------------------------------------------
+[FROM]
+Doctor:   C001
+Facility: S001
+
+[TO]
+Doctor:   C005
+Facility: H001
+
+[PATIENT INFO]
+Patient ID: P005
+Linked Appt: A005
+--------------------------------------------------
+[REASON FOR REFERRAL]
+"Heart murmur investigation"
+
+[CLINICAL SUMMARY]
+""35-year-old male with Grade 2/6 systolic murmur detected during routine examination. No symptoms of chest pain or breathlessness.""
+
+[NOTES]
+""Patient seen
+==================================================

@@ -5,7 +5,7 @@ import javax.swing.table.AbstractTableModel;
 import java.util.List;
 
 public class FacilityTableModel extends AbstractTableModel {
-    // showing ALL 11 columns now
+    // 11 columns
     private final String[] columnNames = {
             "ID", "Name", "Type", "Address", "Postcode",
             "Phone", "Email", "Hours", "Manager", "Capacity", "Specialities"
@@ -31,7 +31,6 @@ public class FacilityTableModel extends AbstractTableModel {
         switch (col) {
             case 0: return f.getFacilityID();
             case 1: return f.getName();
-            // Note: Use whatever getter name you have in Facility.java (getType or getFacilityType)
             case 2: return f.getType();
             case 3: return f.getAddress();
             case 4: return f.getPostcode();

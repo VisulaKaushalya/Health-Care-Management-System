@@ -1,19 +1,19 @@
 package model;
 
 public class Appointment {
-    private String appointmentID;    // Index 0
-    private String patientID;        // Index 1
-    private String clinicianID;      // Index 2
-    private String facilityID;       // Index 3
-    private String date;             // Index 4
-    private String time;             // Index 5
-    private String duration;         // Index 6
-    private String type;             // Index 7
-    private String status;           // Index 8
-    private String reason;           // Index 9
-    private String notes;            // Index 10
-    private String createdDate;      // Index 11
-    private String lastModified;     // Index 12
+    private String appointmentID;
+    private String patientID;
+    private String clinicianID;
+    private String facilityID;
+    private String date;
+    private String time;
+    private String duration;
+    private String type;
+    private String status;
+    private String reason;
+    private String notes;
+    private String createdDate;
+    private String lastModified;
 
     public Appointment(String appointmentID, String patientID, String clinicianID, String facilityID,
                        String date, String time, String duration, String type, String status,
@@ -33,7 +33,7 @@ public class Appointment {
         this.lastModified = lastModified;
     }
 
-    // Getters
+    // ----- Getters -----
     public String getAppointmentID() { return appointmentID; }
     public String getPatientID() { return patientID; }
     public String getClinicianID() { return clinicianID; }
@@ -48,8 +48,9 @@ public class Appointment {
     public String getCreatedDate() { return createdDate; }
     public String getLastModified() { return lastModified; }
 
+    // Helper
     @Override
     public String toString() {
-        return "Appt: " + appointmentID + " [" + date + "]";
+        return "Appt: " + appointmentID + " [" + date + " " + time + "]";
     }
 }

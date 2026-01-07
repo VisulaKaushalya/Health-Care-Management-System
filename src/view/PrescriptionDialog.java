@@ -1,20 +1,22 @@
 package view;
 
-import model.Prescription;
-import model.Patient;
-import model.Clinician;
 import model.Appointment;
+import model.Clinician;
+import model.Patient;
+import model.Prescription;
+
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.List;
 
 public class PrescriptionDialog extends JDialog {
-    // Dropdowns
+    // 1 Dropdowns
     private JComboBox<String> cmbPatient = new JComboBox<>();
     private JComboBox<String> cmbDoctor = new JComboBox<>();
     private JComboBox<String> cmbAppointment = new JComboBox<>();
 
-    // Medical Fields
+    // 2 Medical Fields
     private JTextField txtDate = new JTextField(java.time.LocalDate.now().toString());
     private JTextField txtMedication = new JTextField();
     private JTextField txtDosage = new JTextField();
@@ -27,41 +29,39 @@ public class PrescriptionDialog extends JDialog {
 
     private boolean submitted = false;
 
-    //  Constructor
+    // ---------------- Constructor ----------
     public PrescriptionDialog(Frame owner, Prescription p, List<Patient> patients, List<Clinician> clinicians, List<Appointment> appointments) {
         super(owner, (p == null) ? "Issue Prescription" : "Edit Prescription", true);
-        setSize(450, 650);
+
+        // A Layout Setup
+        setSize(500, 700);
         setLocationRelativeTo(owner);
-        setLayout(new GridLayout(13, 2, 5, 5));
+        setLayout(new BorderLayout());
 
-        //  Load Dropdowns
-        for (Patient pat : patients) {
-            cmbPatient.addItem(pat.getPatientID() + " - " + pat.getFirstName() + " " + pat.getLastName());
-        }
-        for (Clinician doc : clinicians) {
-            cmbDoctor.addItem(doc.getClinicianID() + " - Dr. " + doc.getLastName());
-        }
+        // B Load to Dropdowns
+        loadDropdowns(patients, clinicians, appointments);
 
-        // Load Appointments
-        cmbAppointment.addItem("N/A - No Appointment");
-        for (Appointment app : appointments) {
-            cmbAppointment.addItem(app.getAppointmentID() + " - " + app.getDate());
-        }
+        // C Form Panel
+        JPanel formPanel = new JPanel(new GridLayout(12, 2, 10, 10));
+        formPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
 
-        // 2. Add Fields
-        add(new JLabel("Patient:"));        add(cmbPatient);
-        add(new JLabel("Doctor:"));         add(cmbDoctor);
-        add(new JLabel("Appointment:"));    add(cmbAppointment);
-        add(new JLabel("Date (YYYY-MM-DD):")); add(txtDate);
-        add(new JLabel("Medication:"));     add(txtMedication);
-        add(new JLabel("Dosage:"));         add(txtDosage);
-        add(new JLabel("Frequency:"));      add(txtFrequency);
-        add(new JLabel("Duration (Days):"));add(txtDuration);
-        add(new JLabel("Quantity:"));       add(txtQuantity);
-        add(new JLabel("Instructions:"));   add(txtInstructions);
-        add(new JLabel("Pharmacy:"));       add(txtPharmacy);
-        add(new JLabel("Status:"));         add(cmbStatus);
+        formPanel.add(new JLabel("Patient:"));        formPanel.add(cmbPatient);
+        formPanel.add(new JLabel("Doctor:"));         formPanel.add(cmbDoctor);
+        formPanel.add(new JLabel("Link Appointment:")); formPanel.add(cmbAppointment);
+        formPanel.add(new JLabel("Date (YYYY-MM-DD):")); formPanel.add(txtDate);
+        formPanel.add(new JLabel("Medication:"));     formPanel.add(txtMedication);
+        formPanel.add(new JLabel("Dosage:"));         formPanel.add(txtDosage);
+        formPanel.add(new JLabel("Frequency:"));      formPanel.add(txtFrequency);
+        formPanel.add(new JLabel("Duration (Days):"));formPanel.add(txtDuration);
+        formPanel.add(new JLabel("Quantity:"));       formPanel.add(txtQuantity);
+        formPanel.add(new JLabel("Instructions:"));   formPanel.add(txtInstructions);
+        formPanel.add(new JLabel("Pharmacy:"));       formPanel.add(txtPharmacy);
+        formPanel.add(new JLabel("Status:"));         formPanel.add(cmbStatus);
 
+        add(formPanel, BorderLayout.CENTER);
+
+        // D Button Panel
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton btnCancel = new JButton("Cancel");
         JButton btnSave = new JButton("Save");
 
@@ -71,11 +71,12 @@ public class PrescriptionDialog extends JDialog {
             dispose();
         });
 
-        add(btnCancel); add(btnSave);
+        btnPanel.add(btnCancel);
+        btnPanel.add(btnSave);
+        add(btnPanel, BorderLayout.SOUTH);
 
-        //  Pre-fill if Editing
+        // E Pre-fill Data If Editing
         if (p != null) {
-            // Helper to select the right item in dropdowns
             setSelectedStart(cmbPatient, p.getPatientID());
             setSelectedStart(cmbDoctor, p.getClinicianID());
             setSelectedStart(cmbAppointment, p.getAppointmentID());
@@ -92,8 +93,31 @@ public class PrescriptionDialog extends JDialog {
         }
     }
 
-    // Helper method to select dropdown item that starts with ID
+
+
+    // --------- Helper Methods -----------
+
+    private void loadDropdowns(List<Patient> patients, List<Clinician> clinicians, List<Appointment> appointments) {
+        // Patients
+        for (Patient pat : patients) {
+            cmbPatient.addItem(pat.getPatientID() + " - " + pat.getFirstName() + " " + pat.getLastName());
+        }
+        // Doctors
+        for (Clinician doc : clinicians) {
+            cmbDoctor.addItem(doc.getClinicianID() + " - Dr. " + doc.getLastName());
+        }
+        // Appointments
+        cmbAppointment.addItem("N/A - No Appointment");
+        if (appointments != null) {
+            for (Appointment app : appointments) {
+                cmbAppointment.addItem(app.getAppointmentID() + " - " + app.getDate());
+            }
+        }
+    }
+
+    // Helper auto selct with id
     private void setSelectedStart(JComboBox<String> box, String id) {
+        if (id == null || id.isEmpty()) return;
         for (int i = 0; i < box.getItemCount(); i++) {
             if (box.getItemAt(i).startsWith(id)) {
                 box.setSelectedIndex(i);
@@ -102,13 +126,16 @@ public class PrescriptionDialog extends JDialog {
         }
     }
 
+    // --------- Getters ---------
     public boolean isSubmitted() { return submitted; }
 
-    // Getters
-    public String getSelectedPatientID() { return cmbPatient.getSelectedItem().toString().split(" - ")[0]; }
-    public String getSelectedDoctorID() { return cmbDoctor.getSelectedItem().toString().split(" - ")[0]; }
-
-    // Get Selected Appt ID
+    // Logic to extract
+    public String getSelectedPatientID() {
+        return cmbPatient.getSelectedItem().toString().split(" - ")[0];
+    }
+    public String getSelectedDoctorID() {
+        return cmbDoctor.getSelectedItem().toString().split(" - ")[0];
+    }
     public String getSelectedApptID() {
         String selection = cmbAppointment.getSelectedItem().toString();
         if (selection.startsWith("N/A")) return "N/A";

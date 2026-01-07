@@ -2,11 +2,18 @@ package view;
 
 import model.Facility;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 public class FacilityDialog extends JDialog {
+    // UI Components
     private JTextField txtName = new JTextField();
-    private JComboBox<String> cmbType = new JComboBox<>(new String[]{"GP Surgery", "Hospital", "Clinic", "Pharmacy"});
+
+    // Editable Dropdown
+    private JComboBox<String> cmbType = new JComboBox<>(new String[]{
+            "GP Surgery", "Hospital", "Clinic", "Pharmacy", "Care Home", "Dental Practice"
+    });
+
     private JTextField txtAddress = new JTextField();
     private JTextField txtPostcode = new JTextField();
     private JTextField txtPhone = new JTextField();
@@ -14,17 +21,28 @@ public class FacilityDialog extends JDialog {
     private JTextField txtHours = new JTextField();
     private JTextField txtManager = new JTextField();
     private JTextField txtCapacity = new JTextField();
-    private JTextArea txtSpecialities = new JTextArea(3, 20); // Multi-line for specialities
+
+
+    private JTextArea txtSpecialities = new JTextArea(3, 20);
 
     private boolean submitted = false;
 
     public FacilityDialog(Frame owner, Facility f) {
         super(owner, (f == null) ? "Add Facility" : "Edit Facility", true);
-        setSize(400, 600);
-        setLocationRelativeTo(owner);
-        setLayout(new BorderLayout(10, 10));
 
-        JPanel formPanel = new JPanel(new GridLayout(10, 2, 5, 5));
+        // 1 Layout Config
+        setSize(450, 650);
+        setLocationRelativeTo(owner);
+        setLayout(new BorderLayout());
+
+        // custom types
+        cmbType.setEditable(true);
+        txtSpecialities.setLineWrap(true);
+        txtSpecialities.setWrapStyleWord(true);
+
+        // 2 Form Panel
+        JPanel formPanel = new JPanel(new GridLayout(10, 2, 10, 10));
+        formPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
 
         formPanel.add(new JLabel("Facility Name:")); formPanel.add(txtName);
         formPanel.add(new JLabel("Type:"));          formPanel.add(cmbType);
@@ -39,7 +57,8 @@ public class FacilityDialog extends JDialog {
 
         add(formPanel, BorderLayout.CENTER);
 
-        JPanel btnPanel = new JPanel();
+        // 3 Button Panel
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton btnCancel = new JButton("Cancel");
         JButton btnSave = new JButton("Save");
 
@@ -52,7 +71,7 @@ public class FacilityDialog extends JDialog {
         btnPanel.add(btnCancel); btnPanel.add(btnSave);
         add(btnPanel, BorderLayout.SOUTH);
 
-        // Pre-fill
+        // 4 Pre-fill
         if (f != null) {
             txtName.setText(f.getName());
             cmbType.setSelectedItem(f.getType());
@@ -67,7 +86,9 @@ public class FacilityDialog extends JDialog {
         }
     }
 
+    // --------------------- Getters ---
     public boolean isSubmitted() { return submitted; }
+
 
     public String getName() { return txtName.getText(); }
     public String getFacilityType() { return cmbType.getSelectedItem().toString(); }

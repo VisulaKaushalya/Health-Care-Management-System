@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 public class PrescriptionTableModel extends AbstractTableModel {
-    // NOW SHOWING ALL 15 COLUMNS
+    // Showing 15 columns
     private final String[] columnNames = {
             "ID", "Patient", "Doctor", "Appt ID", "Date",
             "Medication", "Dosage", "Frequency", "Duration", "Quantity",
@@ -22,7 +22,7 @@ public class PrescriptionTableModel extends AbstractTableModel {
 
     public PrescriptionTableModel(List<Prescription> list, List<Patient> patients, List<Clinician> clinicians) {
         this.list = list;
-        // Build Lookups for Names (still keeping this feature because it's good marks!)
+        // Lookups for Names
         for (Patient p : patients) patientMap.put(p.getPatientID(), p.getFirstName() + " " + p.getLastName());
         for (Clinician c : clinicians) clinicianMap.put(c.getClinicianID(), "Dr. " + c.getLastName());
     }
@@ -41,18 +41,18 @@ public class PrescriptionTableModel extends AbstractTableModel {
             case 0: return p.getPrescriptionID();
             case 1: return patientMap.getOrDefault(p.getPatientID(), p.getPatientID());
             case 2: return clinicianMap.getOrDefault(p.getClinicianID(), p.getClinicianID());
-            case 3: return p.getAppointmentID(); // Added
+            case 3: return p.getAppointmentID();
             case 4: return p.getDate();
             case 5: return p.getMedication();
             case 6: return p.getDosage();
-            case 7: return p.getFrequency();     // Added
-            case 8: return p.getDuration();      // Added
-            case 9: return p.getQuantity();      // Added
+            case 7: return p.getFrequency();
+            case 8: return p.getDuration();
+            case 9: return p.getQuantity();
             case 10: return p.getInstructions();
             case 11: return p.getPharmacy();
             case 12: return p.getStatus();
-            case 13: return p.getIssueDate();    // Added
-            case 14: return p.getCollectionDate();// Added
+            case 13: return p.getIssueDate();
+            case 14: return p.getCollectionDate();
             default: return null;
         }
     }

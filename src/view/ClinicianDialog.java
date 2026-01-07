@@ -2,40 +2,69 @@ package view;
 
 import model.Clinician;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 public class ClinicianDialog extends JDialog {
-    // Fields input
+    // UI Components
     private JTextField txtFirstName = new JTextField();
     private JTextField txtLastName = new JTextField();
-    private JTextField txtTitle = new JTextField();
+
+    // Matched to clinicians.csv
+    private JComboBox<String> cmbTitle = new JComboBox<>(new String[]{
+            "GP", "Consultant", "Senior Nurse", "Practice Nurse", "Staff Nurse", "Specialist"
+    });
+
     private JTextField txtSpeciality = new JTextField();
     private JTextField txtGmc = new JTextField();
     private JTextField txtPhone = new JTextField();
     private JTextField txtEmail = new JTextField();
     private JTextField txtWorkplaceID = new JTextField();
-    private JTextField txtWorkplaceType = new JTextField();
-    private JTextField txtStatus = new JTextField();
+
+
+    private JComboBox<String> cmbWorkplaceType = new JComboBox<>(new String[]{
+            "GP Surgery", "Hospital", "Clinic", "Care Home"
+    });
+
+
+    private JComboBox<String> cmbStatus = new JComboBox<>(new String[]{
+            "Full-time", "Part-time", "Locum"
+    });
 
     private boolean submitted = false;
 
     public ClinicianDialog(Frame owner, Clinician c) {
         super(owner, (c == null) ? "Add Doctor" : "Edit Doctor", true);
-        setSize(400, 500);
+
+        // 1 Layout Config
+        setSize(450, 550);
         setLocationRelativeTo(owner);
-        setLayout(new GridLayout(11, 2, 5, 5));
+        setLayout(new BorderLayout());
 
-        add(new JLabel("First Name:"));     add(txtFirstName);
-        add(new JLabel("Last Name:"));      add(txtLastName);
-        add(new JLabel("Title (Dr/Mr):"));  add(txtTitle);
-        add(new JLabel("Speciality:"));     add(txtSpeciality);
-        add(new JLabel("GMC Number:"));     add(txtGmc);
-        add(new JLabel("Phone:"));          add(txtPhone);
-        add(new JLabel("Email:"));          add(txtEmail);
-        add(new JLabel("Workplace ID:"));   add(txtWorkplaceID);
-        add(new JLabel("Type (GP/Hosp):")); add(txtWorkplaceType);
-        add(new JLabel("Status (Full/Part):")); add(txtStatus);
+        // EDITING FOR DROPDOWNS
+        cmbTitle.setEditable(true);
+        cmbWorkplaceType.setEditable(true);
+        cmbStatus.setEditable(true);
 
+        // 2 Form Panel
+        JPanel formPanel = new JPanel(new GridLayout(10, 2, 10, 10));
+        formPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
+
+        formPanel.add(new JLabel("First Name:"));     formPanel.add(txtFirstName);
+        formPanel.add(new JLabel("Last Name:"));      formPanel.add(txtLastName);
+        formPanel.add(new JLabel("Job Role:"));       formPanel.add(cmbTitle);
+        formPanel.add(new JLabel("Speciality:"));     formPanel.add(txtSpeciality);
+        formPanel.add(new JLabel("GMC Number:"));     formPanel.add(txtGmc);
+        formPanel.add(new JLabel("Phone:"));          formPanel.add(txtPhone);
+        formPanel.add(new JLabel("Email:"));          formPanel.add(txtEmail);
+        formPanel.add(new JLabel("Workplace ID:"));   formPanel.add(txtWorkplaceID);
+        formPanel.add(new JLabel("Type:"));           formPanel.add(cmbWorkplaceType);
+        formPanel.add(new JLabel("Status:"));         formPanel.add(cmbStatus);
+
+        add(formPanel, BorderLayout.CENTER);
+
+        // 3 Button Panel
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton btnCancel = new JButton("Cancel");
         JButton btnSave = new JButton("Save");
 
@@ -45,34 +74,34 @@ public class ClinicianDialog extends JDialog {
             dispose();
         });
 
-        add(btnCancel); add(btnSave);
+        btnPanel.add(btnCancel); btnPanel.add(btnSave);
+        add(btnPanel, BorderLayout.SOUTH);
 
-        // Pre-fill if editing
+        // 4 Pre-fill
         if (c != null) {
             txtFirstName.setText(c.getFirstName());
             txtLastName.setText(c.getLastName());
-            txtTitle.setText(c.getTitle());
+            cmbTitle.setSelectedItem(c.getTitle());
             txtSpeciality.setText(c.getSpeciality());
             txtGmc.setText(c.getGmcNumber());
-            txtPhone.setText(c.getPhoneNumber());
+            txtPhone.setText(c.getPhone());
             txtEmail.setText(c.getEmail());
             txtWorkplaceID.setText(c.getWorkplaceID());
-            txtWorkplaceType.setText(c.getWorkplaceType());
-            txtStatus.setText(c.getEmploymentStatus());
+            cmbWorkplaceType.setSelectedItem(c.getWorkplaceType());
+            cmbStatus.setSelectedItem(c.getStatus());
         }
     }
 
-    public boolean isSubmitted() { return submitted; }
-
     // Getters
+    public boolean isSubmitted() { return submitted; }
     public String getFirstName() { return txtFirstName.getText(); }
     public String getLastName() { return txtLastName.getText(); }
-    public String getTitle() { return txtTitle.getText(); }
+    public String getTitle() { return cmbTitle.getSelectedItem().toString(); }
     public String getSpeciality() { return txtSpeciality.getText(); }
     public String getGmc() { return txtGmc.getText(); }
     public String getPhone() { return txtPhone.getText(); }
     public String getEmail() { return txtEmail.getText(); }
     public String getWorkplaceID() { return txtWorkplaceID.getText(); }
-    public String getWorkplaceType() { return txtWorkplaceType.getText(); }
-    public String getStatus() { return txtStatus.getText(); }
+    public String getWorkplaceType() { return cmbWorkplaceType.getSelectedItem().toString(); }
+    public String getStatus() { return cmbStatus.getSelectedItem().toString(); }
 }

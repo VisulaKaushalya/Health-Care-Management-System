@@ -5,37 +5,58 @@ import model.Patient;
 import model.Clinician;
 import model.Facility;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.List;
 
 public class ReferralDialog extends JDialog {
-    // Dropdowns for the "Foreign Keys"
+    // 1 Dropdowns for Linking Data
     private JComboBox<String> cmbPatient = new JComboBox<>();
-    private JComboBox<String> cmbRefDoctor = new JComboBox<>(); // Referring Dr
-    private JComboBox<String> cmbToDoctor = new JComboBox<>();  // Referred To Dr
+    private JComboBox<String> cmbRefDoctor = new JComboBox<>();
+    private JComboBox<String> cmbToDoctor = new JComboBox<>();
     private JComboBox<String> cmbFromFacility = new JComboBox<>();
     private JComboBox<String> cmbToFacility = new JComboBox<>();
 
-    // Text Fields for Medical Data
+    // 2 Medical Data Fields
     private JTextField txtDate = new JTextField(java.time.LocalDate.now().toString());
-    private JComboBox<String> cmbUrgency = new JComboBox<>(new String[]{"Routine", "Urgent", "Two Week Wait"});
+
+    private JComboBox<String> cmbUrgency = new JComboBox<>(new String[]{
+            "Routine", "Urgent", "Two Week Wait", "Non-urgent"
+    });
+
+    // Text Areas
     private JTextArea txtReason = new JTextArea(3, 20);
     private JTextArea txtSummary = new JTextArea(3, 20);
     private JTextField txtInvestigations = new JTextField();
-    private JComboBox<String> cmbStatus = new JComboBox<>(new String[]{"Pending", "Accepted", "Rejected", "Completed"});
+
+    private JComboBox<String> cmbStatus = new JComboBox<>(new String[]{
+            "New", "Pending", "Accepted", "Rejected", "Completed"
+    });
+
     private JTextField txtApptID = new JTextField("N/A");
     private JTextArea txtNotes = new JTextArea(3, 20);
 
     private boolean submitted = false;
 
-    // Constructor: Takes lists of Patients, Doctors, and Facilities to fill dropdowns
+    // --------------- Constructor ---------------
     public ReferralDialog(Frame owner, Referral r, List<Patient> patients, List<Clinician> clinicians, List<Facility> facilities) {
         super(owner, (r == null) ? "Create Referral" : "Edit Referral", true);
-        setSize(500, 750); // Tall window
-        setLocationRelativeTo(owner);
-        setLayout(new BorderLayout(10, 10));
 
-        // 1. Populate Dropdowns
+        // A Layout Configuration
+        setSize(550, 750);
+        setLocationRelativeTo(owner);
+        setLayout(new BorderLayout());
+
+        // Configure Text Areas
+        txtReason.setLineWrap(true); txtReason.setWrapStyleWord(true);
+        txtSummary.setLineWrap(true); txtSummary.setWrapStyleWord(true);
+        txtNotes.setLineWrap(true); txtNotes.setWrapStyleWord(true);
+
+        //  Allow custom
+        cmbUrgency.setEditable(true);
+        cmbStatus.setEditable(true);
+
+        // B Populate Dropdowns
         for (Patient p : patients) {
             cmbPatient.addItem(p.getPatientID() + " - " + p.getFirstName() + " " + p.getLastName());
         }
@@ -52,8 +73,9 @@ public class ReferralDialog extends JDialog {
             cmbToFacility.addItem(item);
         }
 
-        // 2. Build the Form Panel
-        JPanel formPanel = new JPanel(new GridLayout(14, 2, 5, 5));
+        // C Form Panel
+        JPanel formPanel = new JPanel(new GridLayout(13, 2, 10, 10));
+        formPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
 
         formPanel.add(new JLabel("Patient:"));              formPanel.add(cmbPatient);
         formPanel.add(new JLabel("Referring Doctor:"));     formPanel.add(cmbRefDoctor);
@@ -71,8 +93,8 @@ public class ReferralDialog extends JDialog {
 
         add(formPanel, BorderLayout.CENTER);
 
-        // 3. Add Buttons
-        JPanel btnPanel = new JPanel();
+        // D Button Panel
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton btnCancel = new JButton("Cancel");
         JButton btnSave = new JButton("Save");
 
@@ -85,7 +107,7 @@ public class ReferralDialog extends JDialog {
         btnPanel.add(btnCancel); btnPanel.add(btnSave);
         add(btnPanel, BorderLayout.SOUTH);
 
-        // 4. Pre-fill data if Editing
+        // E Pre-fill if Editing
         if (r != null) {
             setSelectedStart(cmbPatient, r.getPatientID());
             setSelectedStart(cmbRefDoctor, r.getReferringDoctorID());
@@ -104,8 +126,9 @@ public class ReferralDialog extends JDialog {
         }
     }
 
-    // Helper to select the correct dropdown item based on ID
+    // Helper select correct dropdown item
     private void setSelectedStart(JComboBox<String> box, String id) {
+        if (id == null) return;
         for (int i = 0; i < box.getItemCount(); i++) {
             if (box.getItemAt(i).startsWith(id)) {
                 box.setSelectedIndex(i);
@@ -114,9 +137,9 @@ public class ReferralDialog extends JDialog {
         }
     }
 
+    // --- Getters ---
     public boolean isSubmitted() { return submitted; }
 
-    // Getters for MainFrame to retrieve data
     public String getPatientID() { return cmbPatient.getSelectedItem().toString().split(" - ")[0]; }
     public String getRefDoctorID() { return cmbRefDoctor.getSelectedItem().toString().split(" - ")[0]; }
     public String getToDoctorID() { return cmbToDoctor.getSelectedItem().toString().split(" - ")[0]; }

@@ -5,8 +5,6 @@ public class Patient extends Person {
     private String dateOfBirth;
     private String nhsNumber;
     private String gender;
-    private String phoneNumber;
-    private String email;
     private String address;
     private String postcode;
     private String emergencyName;
@@ -14,18 +12,18 @@ public class Patient extends Person {
     private String registrationDate;
     private String gpSurgeryID;
 
-    //constructor
     public Patient(String patientID, String firstName, String lastName, String dateOfBirth,
                    String nhsNumber, String gender, String phoneNumber, String email,
                    String address, String postcode, String emergencyName,
                    String emergencyPhone, String registrationDate, String gpSurgeryID) {
-        super(firstName, lastName);
+
+        // Pass to Parent (Person)
+        super(firstName, lastName, phoneNumber, email);
+
         this.patientID = patientID;
         this.dateOfBirth = dateOfBirth;
         this.nhsNumber = nhsNumber;
         this.gender = gender;
-        this.phoneNumber = phoneNumber;
-        this.email = email;
         this.address = address;
         this.postcode = postcode;
         this.emergencyName = emergencyName;
@@ -34,25 +32,32 @@ public class Patient extends Person {
         this.gpSurgeryID = gpSurgeryID;
     }
 
-    //getters
+    // ---------- Getters ---
     public String getPatientID() { return patientID; }
-    public String getDateOfBirth() { return dateOfBirth; }
     public String getNhsNumber() { return nhsNumber; }
     public String getGender() { return gender; }
-    public String getPhoneNumber() { return phoneNumber; }
-    public String getEmail() { return email; }
     public String getAddress() { return address; }
     public String getPostcode() { return postcode; }
-    public String getEmergencyName() { return emergencyName; }
-    public String getEmergencyPhone() { return emergencyPhone; }
     public String getRegistrationDate() { return registrationDate; }
+
+    // ------------ Compatibility Getters ---
+
+    public String getDateOfBirth() { return dateOfBirth; }
+    public String getDob() { return dateOfBirth; }
+
     public String getGpSurgeryID() { return gpSurgeryID; }
+    public String getSurgeryID() { return gpSurgeryID; }
 
+    public String getEmergencyName() { return emergencyName; }
+    public String getEmgName() { return emergencyName; }
 
-    //print patient details
+    public String getEmergencyPhone() { return emergencyPhone; }
+    public String getEmgPhone() { return emergencyPhone; }
+
+    //getPhoneNumber() getEmail() inherits
+
     @Override
     public String toString() {
-        return "ID: " + getPatientID() + " | Name: " + getFirstName() + " " + getLastName();
+        return patientID + " - " + getFirstName() + " " + getLastName();
     }
-
 }

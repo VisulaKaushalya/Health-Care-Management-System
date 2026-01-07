@@ -1,20 +1,25 @@
 package model;
 
 public class Referral {
+    // 1 IDs
     private String referralID;
     private String patientID;
     private String referringDoctorID;
     private String referredToDoctorID;
     private String referringFacilityID;
     private String referredToFacilityID;
+    private String appointmentID;
+
+    // 2 Clinical Data
     private String date;
     private String urgency;
     private String reason;
     private String summary;
     private String investigations;
-    private String status;
-    private String appointmentID;
     private String notes;
+
+    // 3 Administrative Data
+    private String status;
     private String createdDate;
     private String lastUpdated;
 
@@ -42,21 +47,23 @@ public class Referral {
         this.lastUpdated = lastUpdated;
     }
 
-    // Getters
+    // ----------- Getters ----------
     public String getReferralID() { return referralID; }
     public String getPatientID() { return patientID; }
     public String getReferringDoctorID() { return referringDoctorID; }
     public String getReferredToDoctorID() { return referredToDoctorID; }
     public String getReferringFacilityID() { return referringFacilityID; }
     public String getReferredToFacilityID() { return referredToFacilityID; }
+    public String getAppointmentID() { return appointmentID; }
+
     public String getDate() { return date; }
     public String getUrgency() { return urgency; }
     public String getReason() { return reason; }
     public String getSummary() { return summary; }
     public String getInvestigations() { return investigations; }
-    public String getStatus() { return status; }
-    public String getAppointmentID() { return appointmentID; }
     public String getNotes() { return notes; }
+
+    public String getStatus() { return status; }
     public String getCreatedDate() { return createdDate; }
     public String getLastUpdated() { return lastUpdated; }
 }

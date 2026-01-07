@@ -1,25 +1,25 @@
 package controller;
 
 import model.Referral;
-import util.CSVHandler;
-import java.util.List;
+
 import java.util.ArrayList;
+import java.util.List;
 
 public class ReferralManager {
-    // 1. The static instance (The Singleton)
+    //  The static instance (The Singleton)
     private static ReferralManager instance;
 
-    // The data it manages
+
     private List<Referral> referrals;
     private CSVHandler csvHandler;
 
-    // 2. Private Constructor (Prevents direct instantiation)
+    //  Private Constructor
     private ReferralManager() {
         this.csvHandler = new CSVHandler();
         this.referrals = new ArrayList<>();
     }
 
-    // 3. Public Method to get the ONLY instance
+    // Public Method to ONLY instance
     public static ReferralManager getInstance() {
         if (instance == null) {
             instance = new ReferralManager();
@@ -27,7 +27,7 @@ public class ReferralManager {
         return instance;
     }
 
-    // --- Business Logic Methods ---
+    // ------------- Business Logic Methods -------------
 
     public void loadData(String filePath) {
         this.referrals = csvHandler.loadReferrals(filePath);

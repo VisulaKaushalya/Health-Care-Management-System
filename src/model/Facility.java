@@ -29,10 +29,10 @@ public class Facility {
         this.specialities = specialities;
     }
 
-    // Getters
+    // ------ Getters ---
     public String getFacilityID() { return facilityID; }
     public String getName() { return name; }
-    public String getType() { return type; }
+    public String getType() { return type; } // Used in Table Model
     public String getAddress() { return address; }
     public String getPostcode() { return postcode; }
     public String getPhone() { return phone; }
@@ -42,9 +42,10 @@ public class Facility {
     public String getCapacity() { return capacity; }
     public String getSpecialities() { return specialities; }
 
+    // for Dialog compatibility
+    public String getFacilityType() { return type; }
 
-
-    // toString for Dropdowns
+    // ----------------- Dropdown Display ---
     @Override
     public String toString() {
         return facilityID + " - " + name;

@@ -1,77 +1,154 @@
 package view;
 
+import model.Appointment;
 import model.Clinician;
+import model.Facility;
 import model.Patient;
+
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.List;
 
 public class AddAppointmentDialog extends JDialog {
 
-    private JComboBox<String> patientCombo;
-    private JComboBox<String> doctorCombo;
-    private JTextField dateField;
-    private JTextField timeField;
-    private JTextField reasonField;
-    private boolean submitted = false; // To track if user clicked Save
+    // UI Components
+    private JComboBox<String> cmbPatient;
+    private JComboBox<String> cmbDoctor;
+    private JComboBox<String> cmbFacility;
+    private JTextField txtDate;
+    private JTextField txtTime;
+    private JTextField txtDuration;
+    private JComboBox<String> cmbType;
+    private JComboBox<String> cmbStatus;
+    private JTextField txtReason;
+    private JTextField txtNotes;
 
-    public AddAppointmentDialog(Frame owner, List<Patient> patients, List<Clinician> clinicians) {
-        super(owner, "Book New Appointment", true); // blocks the main window until closed
-        setSize(400, 350);
+    private boolean submitted = false;
+
+    // Constructor accepts List<Facility>
+    public AddAppointmentDialog(Frame owner, Appointment appt, List<Patient> patients, List<Clinician> clinicians, List<Facility> facilities) {
+        super(owner, (appt == null) ? "Book New Appointment" : "Edit Appointment", true);
+
+        // 1 Layout Config
+        setSize(500, 650);
         setLocationRelativeTo(owner);
-        setLayout(new GridLayout(6, 2, 10, 10)); // 6 rows, 2 cols, padding
+        setLayout(new BorderLayout());
 
-        // 1. Patient Selection
-        add(new JLabel("  Select Patient:"));
-        patientCombo = new JComboBox<>();
+        // 2 Form Panel
+        JPanel formPanel = new JPanel(new GridLayout(10, 2, 10, 10));
+        formPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
+
+        // Initialize Components
+        cmbPatient = new JComboBox<>();
+        cmbDoctor = new JComboBox<>();
+        cmbFacility = new JComboBox<>();
+
+        txtDate = new JTextField(java.time.LocalDate.now().toString());
+        txtTime = new JTextField("09:00");
+        txtDuration = new JTextField("15");
+
+
+        cmbType = new JComboBox<>(new String[]{
+                "Routine Consultation",
+                "Vaccination",
+                "Follow-up",
+                "Urgent Consultation",
+                "Specialist Consultation",
+                "Annual health check",
+                "Flu vaccination",
+                "Blood pressure check"
+        });
+        cmbType.setEditable(true);
+
+        cmbStatus = new JComboBox<>(new String[]{"Scheduled", "Completed", "Cancelled", "No Show"});
+        txtReason = new JTextField("Checkup");
+        txtNotes = new JTextField("None");
+
+        // Load Dropdowns
         for (Patient p : patients) {
-            // Store ID hidden, show Name visible
-            patientCombo.addItem(p.getPatientID() + " - " + p.getFirstName() + " " + p.getLastName());
+            cmbPatient.addItem(p.getPatientID() + " - " + p.getFirstName() + " " + p.getLastName());
         }
-        add(patientCombo);
-
-        // 2. Doctor Selection
-        add(new JLabel("  Select Doctor:"));
-        doctorCombo = new JComboBox<>();
         for (Clinician c : clinicians) {
-            doctorCombo.addItem(c.getClinicianID() + " - Dr. " + c.getLastName());
+            cmbDoctor.addItem(c.getClinicianID() + " - Dr. " + c.getLastName());
         }
-        add(doctorCombo);
+        for (Facility f : facilities) {
+            cmbFacility.addItem(f.getFacilityID() + " - " + f.getName());
+        }
 
-        // 3. Date
-        add(new JLabel("  Date (DD/MM/YYYY):"));
-        dateField = new JTextField("01/01/2026"); // Placeholder
-        add(dateField);
+        // Add to Panel
+        formPanel.add(new JLabel("Select Patient:"));   formPanel.add(cmbPatient);
+        formPanel.add(new JLabel("Select Doctor:"));    formPanel.add(cmbDoctor);
+        formPanel.add(new JLabel("Select Facility:"));  formPanel.add(cmbFacility);
+        formPanel.add(new JLabel("Date (YYYY-MM-DD):"));formPanel.add(txtDate);
+        formPanel.add(new JLabel("Time (HH:MM):"));     formPanel.add(txtTime);
+        formPanel.add(new JLabel("Duration (mins):"));  formPanel.add(txtDuration);
+        formPanel.add(new JLabel("Type:"));             formPanel.add(cmbType);
+        formPanel.add(new JLabel("Status:"));           formPanel.add(cmbStatus);
+        formPanel.add(new JLabel("Reason:"));           formPanel.add(txtReason);
+        formPanel.add(new JLabel("Notes:"));            formPanel.add(txtNotes);
 
-        // 4. Time
-        add(new JLabel("  Time (HH:MM):"));
-        timeField = new JTextField("09:00");
-        add(timeField);
+        add(formPanel, BorderLayout.CENTER);
 
-        // 5. Reason
-        add(new JLabel("  Reason:"));
-        reasonField = new JTextField("Checkup");
-        add(reasonField);
+        // 3 Button Panel
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton btnCancel = new JButton("Cancel");
+        JButton btnSave = new JButton("Save");
 
-        // 6. Buttons
-        JButton cancelButton = new JButton("Cancel");
-        JButton saveButton = new JButton("Book Appointment");
-
-        cancelButton.addActionListener(e -> dispose()); // Close window
-        saveButton.addActionListener(e -> {
+        btnCancel.addActionListener(e -> dispose());
+        btnSave.addActionListener(e -> {
             submitted = true;
-            dispose(); // Close window
+            dispose();
         });
 
-        add(cancelButton);
-        add(saveButton);
+        btnPanel.add(btnCancel); btnPanel.add(btnSave);
+        add(btnPanel, BorderLayout.SOUTH);
+
+        // 4 Pre-fill if Editing
+        if (appt != null) {
+            setSelectedStart(cmbPatient, appt.getPatientID());
+            setSelectedStart(cmbDoctor, appt.getClinicianID());
+            setSelectedStart(cmbFacility, appt.getFacilityID());
+
+            txtDate.setText(appt.getDate());
+            txtTime.setText(appt.getTime());
+            txtDuration.setText(appt.getDuration());
+            cmbType.setSelectedItem(appt.getType());
+            cmbStatus.setSelectedItem(appt.getStatus());
+            txtReason.setText(appt.getReason());
+            txtNotes.setText(appt.getNotes());
+        }
     }
 
-    // Getters
+    // Helper to select wiht ID
+    private void setSelectedStart(JComboBox<String> box, String id) {
+        if (id == null) return;
+        for (int i = 0; i < box.getItemCount(); i++) {
+            if (box.getItemAt(i).startsWith(id)) {
+                box.setSelectedIndex(i);
+                return;
+            }
+        }
+    }
+
+    // --------- Getters --------
     public boolean isSubmitted() { return submitted; }
-    public String getSelectedPatient() { return (String) patientCombo.getSelectedItem(); }
-    public String getSelectedDoctor() { return (String) doctorCombo.getSelectedItem(); }
-    public String getDate() { return dateField.getText(); }
-    public String getTime() { return timeField.getText(); }
-    public String getReason() { return reasonField.getText(); }
+
+    public String getSelectedPatient() { return (String) cmbPatient.getSelectedItem(); }
+    public String getSelectedDoctor() { return (String) cmbDoctor.getSelectedItem(); }
+
+    // Returns just the ID
+    public String getFacilityID() {
+        return cmbFacility.getSelectedItem().toString().split(" - ")[0];
+    }
+
+    public String getDate() { return txtDate.getText(); }
+    public String getTime() { return txtTime.getText(); }
+    public String getDuration() { return txtDuration.getText(); }
+
+    public String getAppointmentType() { return cmbType.getSelectedItem().toString(); }
+
+    public String getStatus() { return cmbStatus.getSelectedItem().toString(); }
+    public String getReason() { return txtReason.getText(); }
+    public String getNotes() { return txtNotes.getText(); }
 }

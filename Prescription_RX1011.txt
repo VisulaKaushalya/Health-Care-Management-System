@@ -1,0 +1,19 @@
+========== PRESCRIPTION ==========
+ID:       RX1011
+Date:     2026-01-07
+----------------------------------
+Patient ID: P001
+Doctor ID:  C001
+----------------------------------
+Medication: sfdjhsjd
+Dosage:     s213
+Frequency:  SADJK
+Duration:   32
+Quantity:   312
+----------------------------------
+Instructions:
+MCAS,
+----------------------------------
+Pharmacy: csbdk
+Status:   Issued
+==================================
