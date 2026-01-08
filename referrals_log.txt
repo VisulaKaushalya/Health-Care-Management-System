@@ -1,7 +1,0 @@
---- REFERRAL SENT---
-Date: 2026-01-01
-From: Dr. Watson
-Patient: John Smith
-Details: Patient needs blood tests.
------------------------
-
